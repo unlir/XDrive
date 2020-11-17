@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -68,7 +65,11 @@ void REIN_TIM_HwElec_Init(void)
 	GPIO_InitStruct.Pin = HW_ELEC_BPWM_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;				//复用推挽
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;	//高速
-	HAL_GPIO_Init(HW_ELEC_BPWM_GPIO_Port, &GPIO_InitStruct);
+	HAL_GPIO_Init(HW_ELEC_BPWM_GPIO_Port, &GPIO_InitStruct);	
+	/*Configure AFIO*/
+#ifdef HwElec_TIM_AFIO_REMAP
+	HwElec_TIM_AFIO_REMAP				//启用备用的TIM_AFIO映射
+#endif
 	
 	/* TIM初始化 */
 	TIM_MasterConfigTypeDef sMasterConfig = {0};
@@ -109,6 +110,7 @@ void REIN_TIM_HwElec_Init(void)
 /********** MT6816 **********/
 /********** MT6816 **********/
 /********** MT6816 **********/
+#if (XDrive_Run == XDrive_REIN_Basic_H1_0)
 /**
   * @brief  TIM_MT6816_ABZ初始化
   * @param  NULL
@@ -165,7 +167,9 @@ void REIN_TIM_MT6816_ABZ_Init(void)
 	HAL_TIM_Base_Stop(&MT6816_ABZ_Get_HTIM);
 	HAL_TIM_Encoder_Start(&MT6816_ABZ_Get_HTIM, TIM_CHANNEL_ALL);
 }
+#endif
 
+#if (XDrive_Run == XDrive_REIN_Basic_H1_0)
 /**
   * @brief  TIM_MT6816_PWM初始化
   * @param  NULL
@@ -232,6 +236,7 @@ void REIN_TIM_MT6816_PWM_Init(void)
 	HAL_TIM_OC_Start_IT(&MT6816_PWM_Get_HTIM, TIM_CHANNEL_2);	//启动CH捕获比较中断
 	HAL_TIM_Base_Start_IT(&MT6816_PWM_Get_HTIM);							//启动TIM中断模式				
 }
+#endif
 
 /********** SIGNAL **********/
 /********** SIGNAL **********/

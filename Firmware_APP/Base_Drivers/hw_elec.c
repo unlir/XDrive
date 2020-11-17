@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -71,8 +68,8 @@ Coil_Typedef		coil_b;	//电流控制
 
 /**
   * @brief  12位基准电压混合输出
-  * @param  ELEC_CH1_Vref: 电流通道1基准
-  * @param  ELEC_CH2_Vref: 电流通道2基准
+  * @param  elec_va: 电流通道a基准
+  * @param  elec_vb: 电流通道b基准
   * @retval NULL
   */
 void CurrentControl_VREF_12Bit_MixOut(uint16_t elec_va, uint16_t elec_vb)
@@ -153,9 +150,3 @@ void REIN_HW_Elec_SetDivideElec(uint32_t divide, int32_t elec_ma)
 	else if(coil_b.sin_data < 0)	{	Out_BP_L();		Out_BM_H();		}
 	else													{	Out_BP_H();		Out_BM_H();		}
 }
-
-
-
-
-
-

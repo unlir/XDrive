@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -263,14 +260,14 @@ void Calibration_Interrupt_Callback(void)
 				//CurrentControl_Out_FeedTrack(encode_cali.out_location, Current_Cali_Current, true, true);
 				encode_cali.out_location = Move_Pulse_NUM;			//输出到1圈位置
 				encode_cali.gather_count = 0;										//采集清零
-				encode_cali.state = CALI_Forward_Hell_AutoCali;	//--->编码器正转自动校准
+				encode_cali.state = CALI_Forward_Encoder_AutoCali;	//--->编码器正转自动校准
 				//初始化标志
 				encode_cali.error_code = CALI_No_Error;
 				encode_cali.error_data = 0;
 			}
 		break;
 		//编码器正转自动校准
-		case CALI_Forward_Hell_AutoCali://正转个1圈 (1 * Motor_Pulse_NUM) -> (2 * Motor_Pulse_NUM)
+		case CALI_Forward_Encoder_AutoCali://正转个1圈 (1 * Motor_Pulse_NUM) -> (2 * Motor_Pulse_NUM)
 			encode_cali.out_location += AutoCali_Speed;
 			REIN_HW_Elec_SetDivideElec(encode_cali.out_location, Current_Cali_Current);
 			//CurrentControl_Out_FeedTrack(encode_cali.out_location, Current_Cali_Current, true, true);
@@ -380,9 +377,8 @@ void Calibration_Loop_Callback(void)
 	if(encode_cali.state != CALI_Operation)
 		return;
 	
-	//PWM输出衰减态,防止写Flash期间的死机造成H桥不受控导通
+	//PWM输出衰减态
 	REIN_HW_Elec_SetSleep();
-	MEIN_Delay_MS(100);	//做点延时(输出休眠)
 
 	//校准器原始数据检查
 	Calibration_Data_Check();
@@ -478,12 +474,6 @@ void Calibration_Loop_Callback(void)
 	//运动配置覆盖
 	Signal_MoreIO_Capture_Goal();			//读取信号端口数据以清除校准期间采样的信号
 	motor_control.stall_flag = true;	//触发堵转保护,即校准后禁用运动控制
-	
-	MEIN_Delay_MS(100);
-	
-	//输出运行
-	//CurrentControl_OutRunning();
-	MEIN_Delay_MS(100);
 	
 	//清理校准信号
 	encode_cali.state = CALI_Disable;

@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -56,13 +53,14 @@ extern "C" {
 #include "kernel_port.h"
 
 //MT6816工作模式定义
-#define MT6816_Mode_PWM		(0x01)	//MT6816工作在PWM模式		(就绪)
-#define MT6816_Mode_SPI		(0x02)	//MT6816工作在SPI模式		(就绪)
-#define MT6816_Mode_ABZ		(0x03)	//MT6816工作在ABZ模式		(就绪)
+#define MT6816_Mode_PWM		(0x01)	//MT6816工作在PWM模式		(支持该模式的硬件版本：XDrive_REIN_Basic_H1_0)
+#define MT6816_Mode_ABZ		(0x02)	//MT6816工作在ABZ模式		(支持该模式的硬件版本：XDrive_REIN_Basic_H1_0)
+#define MT6816_Mode_SPI		(0x03)	//MT6816工作在SPI模式		(支持该模式的硬件版本：XDrive_REIN_Basic_H1_0 / XDrive_REIN_Basic_H1_1)
 
 //MT6816工作模式配置
-#define MT6816_Mode				MT6816_Mode_SPI
+#define MT6816_Mode		MT6816_Mode_SPI
 
+#if (MT6816_Mode == MT6816_Mode_PWM)
 /********** MT6816_PWM **********/
 /********** MT6816_PWM **********/
 /********** MT6816_PWM **********/
@@ -87,6 +85,7 @@ void REIN_MT6816_PWM_Signal_Init(void);		//MT6816_PWM采集初始化
 void REIN_MT6816_PWM_TIM_Callback(void);	//MT6816_PWM采集中断回调
 void REIN_MT6816_PWM_Get_AngleData(void);	//MT6816_PWM获取角度数据
 
+#elif (MT6816_Mode == MT6816_Mode_ABZ)
 /********** MT6816_ABZ **********/
 /********** MT6816_ABZ **********/
 /********** MT6816_ABZ **********/
@@ -102,6 +101,7 @@ void REIN_MT6816_ABZ_Signal_Init(void);			//MT6816_ABZ采集初始化
 void REIN_MT6816_ABZ_ZPulse_Callback(void);	//MT6816_ABZ采集Z脉冲中断回调
 void REIN_MT6816_ABZ_Get_AngleData(void);		//MT6816_ABZ获取角度数据
 
+#elif (MT6816_Mode == MT6816_Mode_SPI)
 /********** MT6816_SPI **********/
 /********** MT6816_SPI **********/
 /********** MT6816_SPI **********/
@@ -117,6 +117,8 @@ typedef struct{
 //MT6816_SPI
 void REIN_MT6816_SPI_Signal_Init(void);		//MT6816_SPI采集初始化
 void RINE_MT6816_SPI_Get_AngleData(void);	//MT6816_SPI采集获取角度数据
+
+#endif
 
 /********** MT6816 **********/
 /********** MT6816 **********/

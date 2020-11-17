@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -72,13 +69,13 @@ typedef enum{
 
 //校准状态
 typedef enum{
-	CALI_Disable = 0x00,				//失能
-	CALI_Forward_Hell_AutoCali,	//编码器正转自动校准
-	CALI_Forward_Measure,				//正向测量
-	CALI_Reverse_Ret,						//反向回退
-	CALI_Reverse_Gap,						//反向消差
-	CALI_Reverse_Measure,				//反向测量
-	CALI_Operation,							//解算
+	CALI_Disable = 0x00,						//失能
+	CALI_Forward_Encoder_AutoCali,	//编码器正转自动校准
+	CALI_Forward_Measure,						//正向测量
+	CALI_Reverse_Ret,								//反向回退
+	CALI_Reverse_Gap,								//反向消差
+	CALI_Reverse_Measure,						//反向测量
+	CALI_Operation,									//解算
 }CALI_State;
 
 /**

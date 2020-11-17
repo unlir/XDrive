@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -468,11 +465,11 @@ void Signal_PWM_TIM_Callback(void)
 			
 			//单次PWM有效性确认
 			if(0){}
-			else if((sg_pwm.whole_h_flag))	sg_pwm.ready_first = false;	//100%_PWM无效
-			else if((sg_pwm.whole_l_flag))	sg_pwm.ready_first = false;	//0%_PWM无效
+			else if((sg_pwm.whole_h_flag))																																sg_pwm.ready_first = false;	//100%_PWM无效
+			else if((sg_pwm.whole_l_flag))																																sg_pwm.ready_first = false;	//0%_PWM无效
 			else if((sg_pwm.top_width < (65535 - 100)) && ((sg_pwm.top_width + 100) < sg_pwm.h_width))		sg_pwm.ready_first = false;	//脉宽超长
 			else if((sg_pwm.bottom_width > (0 + 100)) && ((sg_pwm.bottom_width - 100) > sg_pwm.h_width))	sg_pwm.ready_first = false;	//脉宽超短
-			else														sg_pwm.ready_first = true;
+			else																																													sg_pwm.ready_first = true;
 			
 			//可靠的PWM有效性确认
 			if(sg_pwm.ready_first){
@@ -481,10 +478,10 @@ void Signal_PWM_TIM_Callback(void)
 				}
 				else{
 					sg_pwm.ready_second = true;
+					sg_pwm.ready_third = false;
 				}
 			}
 			else{
-				sg_pwm.ready_first = false;
 				sg_pwm.ready_second = false;
 				sg_pwm.ready_third = false;
 			}

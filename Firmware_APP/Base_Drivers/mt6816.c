@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -61,6 +58,7 @@ uint16_t *Read_QuickCali_DATA = (uint16_t*)STOCKPILE_QUICAK_CALI_ADDR;
 #define MT6816_SPI_CS_H()		(MT6816_SPI_CS_GPIO_Port -> BSRR = MT6816_SPI_CS_Pin)
 #define MT6816_SPI_CS_L()		(MT6816_SPI_CS_GPIO_Port -> BRR  = MT6816_SPI_CS_Pin)
 
+#if (MT6816_Mode == MT6816_Mode_PWM)
 /****************************** MT6816_PWM ******************************/
 /****************************** MT6816_PWM ******************************/
 /****************************** MT6816_PWM ******************************/
@@ -193,6 +191,7 @@ void REIN_MT6816_PWM_Get_AngleData(void)
 		mt6816_pwm.angle = out;
 }
 
+#elif (MT6816_Mode == MT6816_Mode_ABZ)
 /****************************** MT6816_ABZ ******************************/
 /****************************** MT6816_ABZ ******************************/
 /****************************** MT6816_ABZ ******************************/
@@ -239,6 +238,7 @@ void REIN_MT6816_ABZ_Get_AngleData(void)
 	mt6816_abz.angle = ((mt6816_abz.sample_data + 1) << 2) - 1;		//获得数值0~16383
 }
 
+#elif (MT6816_Mode == MT6816_Mode_SPI)
 /****************************** MT6816_SPI ******************************/
 /****************************** MT6816_SPI ******************************/
 /****************************** MT6816_SPI ******************************/
@@ -304,6 +304,8 @@ void RINE_MT6816_SPI_Get_AngleData(void)
 		mt6816_spi.no_mag_flag = (bool)(mt6816_spi.sample_data & (0x0001 << 1));
 	}
 }
+
+#endif
 
 /****************************** MT6816 ******************************/
 /****************************** MT6816 ******************************/

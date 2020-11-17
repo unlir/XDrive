@@ -24,6 +24,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "loop.h"
+#include "stockpile_f103cb.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,7 +65,9 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+#if STOCKPILE_APP_FIRMWARE_ADDR != 0x08000000U
+	SCB->VTOR = SCB_VTOR_TBLOFF_Msk & STOCKPILE_APP_FIRMWARE_ADDR;
+#endif
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/

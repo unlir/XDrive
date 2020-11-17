@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -55,7 +52,7 @@ extern "C" {
 #include "kernel_port.h"
 
 //工程配置
-#define Button_Quan		3		//按键数量
+#define Button_Quan		3		//按键支持数量
 #define Button_OK			0		//按键OK编号
 #define Button_UP			1		//按键UP编号
 #define Button_DOWN		2		//按键DOWN编号
@@ -64,12 +61,15 @@ extern "C" {
 #define Button_Long_Time	1000	//ms长按触发时间
 
 typedef enum{
+	//保持状态
 	Button_Bit_Up = 0,			//状态_弹起
 	Button_Bit_Shake,				//状态_抖动
 	Button_Bit_Press,				//状态_按下
 	Button_Bit_Long,				//状态_长按
+	//边沿状态
 	Button_Bit_Drop,				//边沿_按下
 	Button_Bit_Rise,				//边沿_弹起
+	Button_Bit_LongDrop,		//边沿_长按按下
 	Button_Bit_LongRise,		//边沿_长按弹起
 }Button_State_Typedef;
 

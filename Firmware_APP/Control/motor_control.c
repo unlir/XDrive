@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -470,7 +467,7 @@ void Motor_Control_Callback(void)
 			case Motor_Mode_Debug_Location:		Control_DCE_To_Electric(motor_control.soft_location, motor_control.soft_speed);				break;
 			case Motor_Mode_Debug_Speed:			Control_PID_To_Electric(motor_control.soft_speed);																		break;
 			//停止
-			case Control_Mode_Stop:						/** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** **/				break;
+			case Control_Mode_Stop:						REIN_HW_Elec_SetSleep();																															break;
 			//DIG(CAN/RS485)
 			case Motor_Mode_Digital_Location:	Control_DCE_To_Electric(motor_control.soft_location, motor_control.soft_speed);				break;
 			case Motor_Mode_Digital_Speed:		Control_PID_To_Electric(motor_control.soft_speed);																		break;
@@ -566,6 +563,7 @@ void Motor_Control_Callback(void)
 		motor_control.soft_new_curve = false;
 		//控制重载和功率模块唤醒
 		Motor_Control_Clear_Integral();	//清除控制积分项目
+		Motor_Control_Clear_Stall();		//清除堵转识别
 		//CurrentControl_OutWakeUp();		//XDrive采用硬件逻辑电流控制,自动唤醒
 		//CurrentControl_OutRunning();	//XDrive采用硬件逻辑电流控制,自动唤醒
 		switch(motor_control.mode_run){
@@ -662,16 +660,26 @@ void Motor_Control_Clear_Integral(void)
 }
 
 /**
+  * @brief  清除堵转识别
+  * @param  NULL
+  * @retval NULL
+**/
+void Motor_Control_Clear_Stall(void)
+{
+	motor_control.stall_time_us = 0;		//堵转计时器
+	motor_control.stall_flag = false;		//堵转标志
+}
+
+/**
   * @brief  超前角补偿
   * @param  _speed:补偿速度
   * @retval 补偿角度
 **/
 int32_t Motor_Control_AdvanceCompen(int32_t _speed)
 {
-	/******************** !!!!! 重要1：本补偿表提取自DPS系列代码                                                      !!!!! ********************/
-	/******************** !!!!! 重要2：由于源于其他传感器数据，本补偿表并不完全适合TLE5012和MT6816                    !!!!! ********************/
-	/******************** !!!!! 重要3：由于测量传感器的最佳补偿曲线十分费时繁琐，作者并不准备在公测阶段进行校准表测量 !!!!! ********************/
-	/******************** !!!!! 重要4：若在发布版本发现该问题未修补，请提醒作者进行测量补充                           !!!!! ********************/
+	/******************** !!!!! 重要1：本补偿表提取自DPS系列代码                                                  !!!!! ********************/
+	/******************** !!!!! 重要2：由于源于其他传感器数据，本补偿表并不完全适合TLE5012和MT6816                !!!!! ********************/
+	/******************** !!!!! 重要3：由于测量传感器的最佳补偿曲线十分费时繁琐，作者并不准备在近期进行校准表测量 !!!!! ********************/
 
 	int32_t compen;
 	if(_speed < 0){

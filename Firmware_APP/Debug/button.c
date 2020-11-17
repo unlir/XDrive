@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -66,9 +63,15 @@ bool Button_Read_Level(uint16_t button_num)
 {
 	switch(button_num)
 	{
+		#ifdef BUTTON_OK_GPIO_CLK_ENABLE
 		case Button_OK:			return (!(bool)Read_Button_OK_IO());		//低电平为按下
+		#endif
+		#ifdef BUTTON_UP_GPIO_CLK_ENABLE
 		case Button_UP:			return (!(bool)Read_Button_UP_IO());		//低电平为按下
+		#endif
+		#ifdef BUTTON_DOWN_GPIO_CLK_ENABLE
 		case Button_DOWN:		return (!(bool)Read_Button_DOWN_IO());	//低电平为按下
+		#endif
 		default:						return false;
 	}
 }
@@ -107,14 +110,14 @@ void Button_Scan_ms(uint32_t _time)
 		//按键状态处理
 		switch(button[i].state)
 		{
-			//Key状态_弹起
+			//状态_弹起
 			case Button_Bit_Up:
 				if(button[i].level){
 					button[i].state = Button_Bit_Shake;
 					button[i].time_ms = 0;
 				}
 			break;
-			//Key状态_抖动
+			//状态_抖动
 			case Button_Bit_Shake:
 				if(button[i].level){
 					button[i].time_ms += _time;
@@ -129,13 +132,13 @@ void Button_Scan_ms(uint32_t _time)
 					button[i].time_ms = 0;
 				}
 			break;
-			//Key状态_按下
+			//状态_按下
 			case Button_Bit_Press:
 				if(button[i].level){
 					button[i].time_ms += _time;
 					if(button[i].time_ms > Button_Long_Time)
 					{
-						button[i].state = Button_Bit_Long;
+						button[i].state = Button_Bit_LongDrop;
 						button[i].time_ms = 0;
 					}
 				}
@@ -144,7 +147,7 @@ void Button_Scan_ms(uint32_t _time)
 					button[i].time_ms = 0;
 				}
 			break;
-			//Key长按状态
+			//状态_长按
 			case Button_Bit_Long:
 				if(button[i].level){
 					button[i].state = Button_Bit_Long;
@@ -153,7 +156,7 @@ void Button_Scan_ms(uint32_t _time)
 					button[i].state = Button_Bit_LongRise;
 				}
 			break;
-			//Key按下沿
+			//边沿_按下
 			case Button_Bit_Drop:
 				if(button[i].level){
 					button[i].state = Button_Bit_Press;
@@ -163,11 +166,21 @@ void Button_Scan_ms(uint32_t _time)
 					button[i].state = Button_Bit_Up;
 				}
 			break;
-			//Key弹起沿
+			//边沿_弹起
 			case Button_Bit_Rise:
 				button[i].state = Button_Bit_Up;
 			break;
-			//长按弹起沿
+			//边沿_长按按下
+			case Button_Bit_LongDrop:
+				if(button[i].level){
+					button[i].state = Button_Bit_Long;
+					button[i].time_ms = 0;
+				}
+				else{
+					button[i].state = Button_Bit_Up;
+				}
+			break;
+			//边沿_长按弹起
 			case Button_Bit_LongRise:
 				button[i].state = Button_Bit_Up;
 			break;

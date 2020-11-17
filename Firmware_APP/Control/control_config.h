@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -55,20 +52,9 @@ extern "C" {
 #include <stdint.h>
 #include <stdbool.h>
 
-
 /********************  硬件配置区  ********************/
-#define Hardware_XDrive_H0101			(00000101)
-#define Hardware_XDrive						Hardware_XDrive_H0101
-
-#ifndef Hardware_XDrive
-	#error "No define Hardware_XDrive"
-#endif
-#if (Hardware_XDrive == Hardware_XDrive_H0101)
 #define Current_Rated_Current		(3000)		//额定电流(mA)
 #define Current_Cali_Current		(2000)		//校准电流(mA)
-#else
-	#error "Hardware_XDrive Invalid !!!"
-#endif
 
 /********************  运动参数配置区  ********************/
 #define Move_Step_NUM				((int32_t)(200))																//(使用的电机单圈步数)(每步磁场旋转90°)

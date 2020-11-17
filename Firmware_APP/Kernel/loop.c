@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -45,37 +42,12 @@
   ** @explain  : null
 *****/
 
-/*****
-  ************************************************************************
-  ******************************  写在最前面  *****************************
-  **
-  ** 1.由于作者比较忙,目前只完成“公测版”,仅适用于开发者学习纠错,不建议用于实际工程.
-  **
-  ** 2.“公测版”代码将以一个较快的频率进行第4节更新(目前为1.1.4.1),恕无法进行通知,若需要获取及时的更新信息,请加上述发行QQ群了解更新情况.
-  **
-  ** 3.代码中所有预存参数均写好了接口函数,需要使用的用户可以直接调用.
-  **
-  ** 4.本版本代码暂时只支持(X_Drive_H1.0.1)(即单板三按键那个),
-  **   作者将尽快完成对(X_Drive_Ext_H1.0.0)(即双板二按键那个)的移植测试工作.
-  ** 
-  ** 5.如果查阅代码或使用中发现了bug,最好及时联系作者指出,不然我自己就发现了(>_<)
-  **   同理,如果有啥好玩的功能可以实现的,也最好连续作者更新,或者先行完成,再让我白嫖
-  **
-  ************************************************************************
-  *****************************  本版使用方法  ****************************
-  ** 
-  ** 1.点按上下按键选择模式,点按确认按键确认加载的模式,目前已经完成开放的模式有
-  **   (停止)(DIG位置)(DIG速度)(DIG电流)(DIG轨迹)(PWM位置_舵机)(PWM速度_调速机)(PWM电流_直流机)(PULSE位置)
-  **
-  ** 2.长按确认按键,进行编码器校准(若成功:继续执行任务)(若失败:显示失败识别码).
-  **
-  ************************************************************************
-*****/
-
 //Oneself
 #include "loop.h"
 
 //Application_User_Core
+#include "dma.h"
+#include "adc.h"
 
 //Base_Drivers
 #include "kernel_port.h"
@@ -118,8 +90,8 @@ void time_second_10ms_serve(void)
 */
 void time_second_20ms_serve(void)
 {
-	//XDrive_UI(50Hz刷新率)
-	XDrive_UI_Callback_ms(20);
+	//XDrive_REINui(50Hz刷新率)
+	XDrive_REINui_Callback_ms(20);
 }
 
 /**
@@ -171,7 +143,19 @@ void loop_second_base_1ms(void)
 */
 void loop(void)
 {
-	//基本外设初始化(Base_Drivers)
+	//调试工具(Debug)
+	Button_Init();				//按键初始化
+	SSD1306_Init();				//OLED初始化
+	XDrive_REINui_Init();	//UI初始化
+	
+	//进行关键外设初始化前等待电源稳定
+	HAL_Delay(1000);
+	
+	//基本外设初始化(Base_Drivers)(LOOP直接进行)
+	REIN_DMA_Init();
+	REIN_ADC_Init();	
+	
+	//基本外设初始化()
 	REIN_MT6816_Init();		//MT6816传感器初始化
 	REIN_HW_Elec_Init();	//硬件电流控制器
 	Signal_MoreIO_Init();	//MoreIO接口初始化
@@ -179,11 +163,6 @@ void loop(void)
 	//控制初始化(Control)
 	Calibration_Init();		//校准器初始化
 	Motor_Control_Init();	//电机控制初始化
-	
-	//调试工具(Debug)
-	Button_Init();				//按键初始化
-	SSD1306_Init();				//OLED初始化
-	XDrive_UI_Init();			//XDrive_UI初始化
 	
 	//调整中断配置
 	LoopIT_Priority_Overlay();	//重写-中断优先级覆盖

@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -207,10 +204,11 @@ extern Motor_Control_Typedef motor_control;
 void Motor_Control_SetMotorMode(Motor_Mode _mode);	//控制模式
 void Motor_Control_SetStallSwitch(bool _switch);		//堵转保护开关
 //任务执行
-void Motor_Control_Init(void);								//电机控制初始化
-void Motor_Control_Callback(void);						//控制器任务回调
-void Motor_Control_Clear_Integral(void);							//清除积分
-int32_t Motor_Control_AdvanceCompen(int32_t _speed);	//超前角补偿
+void Motor_Control_Init(void);											//电机控制初始化
+void Motor_Control_Callback(void);									//控制器任务回调
+void Motor_Control_Clear_Integral(void);						//清除积分
+void Motor_Control_Clear_Stall(void);								//清除堵转保护
+int32_t Motor_Control_AdvanceCompen(int32_t _speed);//超前角补偿
 
 #ifdef __cplusplus
 }

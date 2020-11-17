@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -35,7 +32,6 @@
 	******
 	************************************************************************
 ******/
-
 /*****
   ** @file     : stockpile_f103cb.c/h
   ** @brief    : Flash存储库
@@ -45,8 +41,8 @@
   ** @explain  : null
 *****/
 
-#ifndef STOCKPILE_F030K6_H
-#define STOCKPILE_F030K6_H
+#ifndef STOCKPILE_F103CB_H
+#define STOCKPILE_F103CB_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,25 +51,8 @@ extern "C" {
 //引用端口定义
 #include "kernel_port.h"
 
-/*************************************************************** Stockpile_Start ***************************************************************/
-/*************************************************************** Stockpile_Start ***************************************************************/
-/*************************************************************** Stockpile_Start ***************************************************************/
-/*********************STM32F103xx*************************/
-//主储存块容量
-//Flash Size(bytes)/RAM size(bytes)
-// 大容量   1M / 96K                                     RG               VG           ZG
-// 大容量 768K / 96K                                     RF               VF           ZF
-// 大容量 512K / 64K                                     RE               VE           ZE
-// 大容量 384K / 64K                                     RD               VD           ZD
-// 大容量 256K / 48K                                     RC               VC           ZC
-// 中容量 128K / 20K      TB           CB                RB               VB
-// 中容量  64K / 20K      T8           C8                R8               V8
-// 小容量  32K / 10K      T6           C6                R6
-// 小容量  16K /  6K      T4           C4                R4
-//        						 36pin-QFN	48pin-LQFP/QFN	64pin-BGA/CSP/LQFP  100pin-LQFP  144pin-BGA/LQFP  
-/*************************************************************** Stockpile_End ***************************************************************/
-/*************************************************************** Stockpile_End ***************************************************************/
-/*************************************************************** Stockpile_End ***************************************************************/
+//应用存储配置
+#include "stockpile_config.h"
 
 /*************************************************************** FLASH_Start ***************************************************************/
 /*************************************************************** FLASH_Start ***************************************************************/
@@ -96,25 +75,10 @@ typedef struct{
 	uint32_t	asce_write_add;	//写地址
 }Stockpile_FLASH_Typedef;
 
-/********** Flash分区表 **********/
-/***********************************Flash段名称*************起始地址******结束地址****大小******注释****/
-//                                      ALL               0x08000000U   0x08020000U   128K    全部空间
-//APP
-extern Stockpile_FLASH_Typedef stockpile_app_firmware;  //0x08000000U ~ 0x0800F800U    62K    Firmware
-//DATA
-extern Stockpile_FLASH_Typedef stockpile_data;          //0x0800F800U ~ 0x08010000U     2K    DATA
-//QUICK_CALI
-extern Stockpile_FLASH_Typedef stockpile_quick_cali;  	//0x08010000U ~ 0x08020000U    64K    Quicak_Cali(可容纳32K校准数据-即最大支持15位编码器的校准数据)
-
-//APP
-#define		STOCKPILE_APP_FIRMWARE_ADDR		(              0x08000000U)		//起始地址
-#define		STOCKPILE_APP_FIRMWARE_SIZE		(0x0800F800U - 0x08000000U)		//Flash容量
-//DATA
-#define		STOCKPILE_DATA_ADDR						(              0x0800F800U)		//起始地址
-#define		STOCKPILE_DATA_SIZE						(0x08010000U - 0x0800F800U)		//Flash容量
-//QUICK_CALI
-#define		STOCKPILE_QUICAK_CALI_ADDR		(              0x08010000U)		//起始地址
-#define		STOCKPILE_QUICAK_CALI_SIZE		(0x08020000U - 0x08010000U)		//Flash容量
+/********** Flash分区表实例 **********/
+extern Stockpile_FLASH_Typedef stockpile_app_firmware;
+extern Stockpile_FLASH_Typedef stockpile_quick_cali;
+extern Stockpile_FLASH_Typedef stockpile_data;
 
 void Stockpile_Flash_Data_Empty(Stockpile_FLASH_Typedef *stockpile);			//Flash数据清空
 void Stockpile_Flash_Data_Begin(Stockpile_FLASH_Typedef *stockpile);			//Flash数据开始写入

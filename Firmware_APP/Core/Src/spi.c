@@ -1,24 +1,21 @@
 /******
 	************************************************************************
 	******
-	** @versions : 1.1.4
-	** @time     : 2020/09/15
-	******
-	************************************************************************
-	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
 	** {Stepper motor with multi-function interface and closed loop function.}
-	** Copyright (c) {2020}  {unlir}
+	** Copyright (c) {2020}  {unlir(知不知啊)}
 	** 
 	** This program is free software: you can redistribute it and/or modify
 	** it under the terms of the GNU General Public License as published by
@@ -87,7 +84,7 @@ void REIN_SPI_MT6816_SPI_Init(void)
 	MT6816_SPI_Get_HSPI.Init.CLKPolarity = SPI_POLARITY_HIGH;								//CLK空闲时高电平
 	MT6816_SPI_Get_HSPI.Init.CLKPhase = SPI_PHASE_2EDGE;										//第二边沿采样
 	MT6816_SPI_Get_HSPI.Init.NSS = SPI_NSS_SOFT;														//软件NSS
-	MT6816_SPI_Get_HSPI.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;		//4分频(9MBit/s)
+	MT6816_SPI_Get_HSPI.Init.BaudRatePrescaler = MT6816_SPI_Prescaler;			//输入预设分频
 	MT6816_SPI_Get_HSPI.Init.FirstBit = SPI_FIRSTBIT_MSB;										//MSB传输
 	MT6816_SPI_Get_HSPI.Init.TIMode = SPI_TIMODE_DISABLE;										//禁用中断模式
 	MT6816_SPI_Get_HSPI.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;		//禁用CRC校验
@@ -137,7 +134,7 @@ void REIN_SPI_OLED_SPI_Init(void)
 	OLED_SPI_Get_HSPI.Init.CLKPolarity = SPI_POLARITY_LOW;								//CLK空闲低电平
 	OLED_SPI_Get_HSPI.Init.CLKPhase = SPI_PHASE_1EDGE;										//第一边沿采样
 	OLED_SPI_Get_HSPI.Init.NSS = SPI_NSS_SOFT;														//软件NSS
-	OLED_SPI_Get_HSPI.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_4;		//4分频(9MBit/s)
+	OLED_SPI_Get_HSPI.Init.BaudRatePrescaler = OLED_SPI_Prescaler;				//输入预设分频
 	OLED_SPI_Get_HSPI.Init.FirstBit = SPI_FIRSTBIT_MSB;										//MSB传输
 	OLED_SPI_Get_HSPI.Init.TIMode = SPI_TIMODE_DISABLE;										//禁用中断模式
 	OLED_SPI_Get_HSPI.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;		//禁用CRC校验
