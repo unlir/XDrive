@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F103xB</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;..\Base_Drivers;..\Base_Math;..\Config;..\Control;..\Data_Link;..\Debug;..\Kernel</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc;../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F1xx/Include;../Drivers/CMSIS/Include;..\Base_Drivers;..\Base_Math;..\Config;..\Control;..\Data_Link;..\Debug;..\Kernel;..\Demo</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -422,6 +422,11 @@
               <FileName>tim.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/tim.c</FilePath>
+            </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Core\Src\usart.c</FilePath>
             </File>
             <File>
               <FileName>stm32f1xx_it.c</FileName>
@@ -578,6 +583,11 @@
               <FileType>1</FileType>
               <FilePath>..\Base_Drivers\signal_port.c</FilePath>
             </File>
+            <File>
+              <FileName>uart_mixed.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Base_Drivers\uart_mixed.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -654,9 +664,6 @@
               <FilePath>..\Control\power_detect.c</FilePath>
             </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>Data_Link</GroupName>
         </Group>
         <Group>
           <GroupName>Debug</GroupName>

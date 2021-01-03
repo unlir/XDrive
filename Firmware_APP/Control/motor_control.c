@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -114,6 +111,18 @@ void Control_PID_SetKD(uint16_t _k)
 {
 	if(_k <= 1024){		pid.kd = _k;		pid.valid_kd = true;		}
 	else{															pid.valid_kd = false;		}
+}
+
+/**
+  * @brief  PID参数恢复
+  * @param  NULL
+  * @retval NULL
+**/
+void Control_PID_Set_Default(void)
+{
+	Control_PID_SetKP(De_PID_KP);
+	Control_PID_SetKI(De_PID_KI);
+	Control_PID_SetKD(De_PID_KD);
 }
 
 /**
@@ -221,6 +230,19 @@ void Control_DCE_SetKD(uint16_t _k)
 {
 	if(_k <= 1024){		dce.kd = _k;		dce.valid_kd = true;		}
 	else{															dce.valid_kd = false;		}
+}
+
+/**
+  * @brief  DCE参数恢复
+  * @param  NULL
+  * @retval NULL
+**/
+void Control_DCE_Set_Default(void)
+{
+	Control_DCE_SetKP(De_DCE_KP);
+	Control_DCE_SetKI(De_DCE_KI);
+	Control_DCE_SetKV(De_DCE_KV);
+	Control_DCE_SetKD(De_DCE_KD);
 }
 
 /**
@@ -342,6 +364,73 @@ void Motor_Control_SetStallSwitch(bool _switch)
 }
 
 /**
+  * @brief  控制模式参数恢复
+  * @param  NULL
+  * @retval NULL
+**/
+void Motor_Control_SetDefault(void)
+{
+	Motor_Control_SetMotorMode(De_Motor_Mode);
+	Motor_Control_SetStallSwitch(De_Motor_Stall);
+}
+
+/**
+  * @brief  写入目标位置
+  * @param  NULL
+  * @retval NULL
+**/
+void Motor_Control_Write_Goal_Location(int32_t value)
+{
+	motor_control.goal_location = value;
+}
+	
+/**
+  * @brief  写入目标速度
+  * @param  NULL
+  * @retval NULL
+**/
+void Motor_Control_Write_Goal_Speed(int32_t value)
+{
+	if((value >= -Move_Rated_Speed) && (value <= Move_Rated_Speed))
+	{
+		motor_control.goal_speed = value;
+	}
+}
+
+/**
+  * @brief  写入目标电流
+  * @param  NULL
+  * @retval NULL
+**/
+void Motor_Control_Write_Goal_Current(int16_t value)
+{
+	if((value >= -Current_Rated_Current) && (value <= Current_Rated_Current))
+	{
+		motor_control.goal_current = value;
+	}
+}
+
+/**
+  * @brief  写入目标失能
+  * @param  NULL
+  * @retval NULL
+**/
+void Motor_Control_Write_Goal_Disable(uint16_t value)
+{
+	motor_control.goal_disable = (bool)value;
+}
+
+/**
+  * @brief  写入目标刹车
+  * @param  NULL
+  * @retval NULL
+**/
+void Motor_Control_Write_Goal_Brake(uint16_t value)
+{
+	motor_control.goal_brake = (bool)value;
+}
+
+/**
   * @brief  电机控制初始化
   * @param  NULL
   * @retval NULL
@@ -352,22 +441,21 @@ void Motor_Control_Init(void)
 	if(!motor_control.valid_mode)					{		Motor_Control_SetMotorMode(De_Motor_Mode);		}
 	if(!motor_control.valid_stall_switch)	{		Motor_Control_SetStallSwitch(De_Motor_Stall);	}
 
-	/********** motor_control **********/
-	//配置
-	motor_control.mode_run = Control_Mode_Stop;		//启动控制时mode_run = Stop (由mode_order进行工作模式变换)
+	//模式
+	motor_control.mode_run = Control_Mode_Stop;
 	//读取
-	motor_control.real_lap_location = mt6816.rectify_angle;		//控制初始化前需要完成编码器数据采集
-	motor_control.real_lap_location_last = motor_control.real_lap_location;
-	motor_control.real_location = motor_control.real_lap_location;
-	motor_control.real_location_last = motor_control.real_location;
+	motor_control.real_lap_location = 0;
+	motor_control.real_lap_location_last = 0;
+	motor_control.real_location = 0;
+	motor_control.real_location_last = 0;
 	//估计
 	motor_control.est_speed_mut = 0;
 	motor_control.est_speed = 0;
 	motor_control.est_lead_location = 0;
-	motor_control.est_location = motor_control.real_lap_location;
+	motor_control.est_location = 0;
 	motor_control.est_error = 0;
 	//硬目标
-	motor_control.goal_location = motor_control.real_lap_location;
+	motor_control.goal_location = 0;
 	motor_control.goal_speed = 0;
 	motor_control.goal_current = 0;
 	motor_control.goal_disable = false;
@@ -385,6 +473,11 @@ void Motor_Control_Init(void)
 	//堵转识别
 	motor_control.stall_time_us = 0;
 	motor_control.stall_flag = false;
+	//过载识别
+	motor_control.overload_time_us = 0;
+	motor_control.overload_flag = false;
+	//状态
+	motor_control.state = Control_State_Stop;		
 	
 	/**********  控制算法初始化  **********/
 	Control_PID_Init();
@@ -405,10 +498,24 @@ void Motor_Control_Init(void)
 **/
 void Motor_Control_Callback(void)
 {
-	int32_t		sub_data;		//用于各个算差
+	/************************************ 首次进入控制回调 ************************************/
+	/************************************ 首次进入控制回调 ************************************/
+	static bool first_call = true;
+	if(first_call)
+	{
+		//读取(为了方便将XDrive代码移植到软件编码器,将位置读取初始化部分全部放置在此处运行)
+		motor_control.real_lap_location				= mt6816.rectify_angle;
+		motor_control.real_lap_location_last	= mt6816.rectify_angle;
+		motor_control.real_location						= mt6816.rectify_angle;
+		motor_control.real_location_last			= mt6816.rectify_angle;
+		//第一次运行强制退出
+		first_call = false;
+		return;
+	}
 	
 	/************************************ 数据采集 ************************************/
 	/************************************ 数据采集 ************************************/
+	int32_t		sub_data;		//用于各个算差
 	//读取单圈位置
 	motor_control.real_lap_location_last = motor_control.real_lap_location;
 	motor_control.real_lap_location = mt6816.rectify_angle;
@@ -633,6 +740,73 @@ void Motor_Control_Callback(void)
 	//提取(软失能,软刹车)
 	motor_control.soft_disable = motor_control.goal_disable;
 	motor_control.soft_brake = motor_control.goal_brake;
+	
+	/************************************ 状态识别 ************************************/
+	/************************************ 状态识别 ************************************/
+	int32_t abs_out_electric = abs(motor_control.foc_current);
+	//堵转检测
+	if( ((motor_control.mode_run == Motor_Mode_Digital_Current) || (motor_control.mode_run == Motor_Mode_PWM_Current))	//电流模式
+	 && (abs_out_electric != 0)																																													//有输出电流
+	 && (abs(motor_control.est_speed) < (Move_Pulse_NUM/5))																															//低于1/5转/s
+	){
+		if(motor_control.stall_time_us >= (1000 * 1000))	motor_control.stall_flag = true;
+		else																							motor_control.stall_time_us += CONTROL_PERIOD_US;
+	}
+	else if( (abs_out_electric == Current_Rated_Current)						//额定电流
+				&& (abs(motor_control.est_speed) < (Move_Pulse_NUM/5))		//低于1/5转/s
+	){
+		if(motor_control.stall_time_us >= (1000 * 1000))	motor_control.stall_flag = true;
+		else																							motor_control.stall_time_us += CONTROL_PERIOD_US;
+	}
+	else{
+		motor_control.stall_time_us = 0;
+		//堵转标志不能自清除，需要外部指令才能清除
+	}
+
+	//过载检测
+	if(abs_out_electric == Current_Rated_Current){		//额定电流
+		if(motor_control.overload_time_us >= (1000 * 1000))	motor_control.overload_flag = true;
+		else																								motor_control.overload_time_us += CONTROL_PERIOD_US;
+	}
+	else{
+		motor_control.overload_time_us = 0;
+		motor_control.overload_flag = false;//过载标志可自清除
+	}
+	
+	/************************************ 状态记录 ************************************/
+	/************************************ 状态记录 ************************************/
+	//统一的电机状态
+	if(motor_control.mode_run == Control_Mode_Stop)	//停止模式
+		motor_control.state = Control_State_Stop;
+	else if(motor_control.stall_flag)								//堵转标志置位
+		motor_control.state = Control_State_Stall;
+	else if(motor_control.overload_flag)						//过载标志置位
+		motor_control.state = Control_State_Overload;
+	else
+	{
+		if(motor_control.mode_run == Motor_Mode_Digital_Location){
+			if( (motor_control.soft_location == motor_control.goal_location)
+			 && (motor_control.soft_speed == 0))
+				motor_control.state = Control_State_Finish;		//软硬目标匹配
+			else
+				motor_control.state = Control_State_Running;
+		}
+		else if(motor_control.mode_run == Motor_Mode_Digital_Speed){
+			if(motor_control.soft_speed == motor_control.goal_speed)
+				motor_control.state = Control_State_Finish;		//软硬目标匹配
+			else
+				motor_control.state = Control_State_Running;
+		}
+		else if(motor_control.mode_run == Motor_Mode_Digital_Current){
+			if(motor_control.soft_current == motor_control.goal_current)
+				motor_control.state = Control_State_Finish;		//软硬目标匹配
+			else
+				motor_control.state = Control_State_Running;
+		}
+		else{
+			motor_control.state = Control_State_Finish;			//软硬目标匹配
+		}
+	}
 }
 
 /**

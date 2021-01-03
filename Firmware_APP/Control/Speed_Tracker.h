@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -60,11 +57,11 @@ extern "C" {
 **/
 typedef struct{
 	//配置(加速加速度)
-	#define	DE_UP_ACC			Move_Rated_UpAcc
+	#define	DE_UP_ACC			(Move_Rated_UpAcc / 10)
 	bool		valid_up_acc;
 	int32_t	up_acc;
 	//配置(减速加速度)
-	#define	DE_DOWN_ACC		Move_Rated_DownAcc
+	#define	DE_DOWN_ACC		(Move_Rated_DownAcc / 10)
 	bool		valid_down_acc;
 	int32_t	down_acc;
 	//计算过程数据
@@ -75,8 +72,9 @@ typedef struct{
 }Speed_Tracker_Typedef;
 extern Speed_Tracker_Typedef	speed_tck;
 
-void Speed_Tracker_Set_UpAcc(int32_t value);	//速度跟踪器设置加速加速度
+void Speed_Tracker_Set_UpAcc(int32_t value);		//速度跟踪器设置加速加速度
 void Speed_Tracker_Set_DownAcc(int32_t value);	//速度跟踪器设置减速加速度
+void Speed_Tracker_Set_Default(void);						//速度跟踪器参数恢复
 
 void Speed_Tracker_Init(void);												//速度跟踪器初始化
 void Speed_Tracker_NewTask(int32_t real_speed);				//速度控制器开始新任务

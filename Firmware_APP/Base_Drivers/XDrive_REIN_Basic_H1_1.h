@@ -1,13 +1,16 @@
 /******
 	************************************************************************
+	******
 	** @project : XDrive_Step
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
+	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
 	******
-	** @issuer  : IVES ( 艾维斯 实验室) (QQ: 557214000)   (master)
-	** @issuer  : REIN (  知驭  实验室) (QQ: 857046846)   (master)
+	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
+	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
+	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -48,10 +51,10 @@ extern "C" {
 
 /********** A **********/
 //ADC
-#define ADC_POWER_U_GROUP								(0)
-#define ADC_POWER_U_CHANNEL							(0)
-#define ADC_POWER_I_GROUP								(0)
-#define ADC_POWER_I_CHANNEL							(1)
+#define ADC_POWER_U_GROUP								(0)		//ADC1
+#define ADC_POWER_U_CHANNEL							(0)				//第1组
+#define ADC_POWER_I_GROUP								(0)		//ADC1
+#define ADC_POWER_I_CHANNEL							(1)				//第2组
 
 /********** B **********/
 /********** BUTTON **********/
@@ -137,6 +140,42 @@ extern "C" {
 #define MT6816_SPI_Get_HSPI								(hspi1)
 #define	MT6816_SPI_AFIO_REMAP							__HAL_AFIO_REMAP_SPI1_ENABLE();	//SPI1_AFIO端口重新映射
 #define	MT6816_SPI_Prescaler							(SPI_BAUDRATEPRESCALER_8)				//SPI1_8分频_9M
+
+/********** Modbus **********/
+/********** Modbus **********/
+/********** Modbus **********/
+//Modbus端口(GPIO)
+#define Modbus_RS485DIR_GPIO_CLK_ENABLE()	__HAL_RCC_GPIOC_CLK_ENABLE()	//PC14
+#define Modbus_RS485DIR_GPIO_Port					(GPIOC)
+#define Modbus_RS485DIR_GPIO_Pin 					(GPIO_PIN_14)
+#define UART1_DIR_TX											(Modbus_RS485DIR_GPIO_Port -> BSRR = Modbus_RS485DIR_GPIO_Pin)
+#define UART1_DIR_RX											(Modbus_RS485DIR_GPIO_Port ->  BRR = Modbus_RS485DIR_GPIO_Pin)
+//Modbus端口(AFIO & UART)
+#define Modbus_UART_TX_GPIO_CLK_ENABLE()	__HAL_RCC_GPIOB_CLK_ENABLE()	//PB6
+#define Modbus_UART_TX_GPIO_Port					(GPIOB)
+#define Modbus_UART_TX_GPIO_Pin 					(GPIO_PIN_6)
+#define Modbus_UART_RX_GPIO_CLK_ENABLE()	__HAL_RCC_GPIOB_CLK_ENABLE()	//PB7
+#define Modbus_UART_RX_GPIO_Port					(GPIOB)
+#define Modbus_UART_RX_GPIO_Pin 					(GPIO_PIN_7)
+#define Modbus_UART_Get_UART							(USART1)
+#define Modbus_UART_Get_HUART							(huart1)
+#define Modbus_UART_AFIO_REMAP						__HAL_AFIO_REMAP_USART1_ENABLE();	//UART1_AFIO端口重新映射
+#define Modbus_UART_IRQn									(USART1_IRQn)						//串口1全局中断
+//Modbus端口(REIN库)
+#define Enabled_MUart1										//使能混合串口功能组
+#define Enabled_Cus_Slave1								//使能Cus_Modbus从机功能组
+#define Enabled_Cus_Master1								//使能Cus_Modbus主机功能组
+#define Modbus_UART_Get_MUART							(muart1)			//Rein库实例
+#define Modbus_UART_Get_Slave							(cus_slave1)	//Cus库实例
+#define Modbus_UART_Get_Master 						(cus_master1)	//Cus库实例
+//Modbus端口(DMA)
+#define Modbus_UART_TX_DMA_CH							(DMA1_Channel4)
+#define Modbus_UART_TX_HDMA								(hdma_usart1_tx)
+#define Modbus_UART_TX_DMA_IRQn						(DMA1_Channel4_IRQn)		//DMA1_CH4中断向量
+#define Modbus_UART_RX_DMA_CH							(DMA1_Channel5)
+#define Modbus_UART_RX_HDMA								(hdma_usart1_rx)
+#define Modbus_UART_RX_DMA_IRQn						(DMA1_Channel5_IRQn)		//DMA1_CH5中断向量
+
 
 /********** N **********/
 

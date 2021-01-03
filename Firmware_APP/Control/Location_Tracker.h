@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -60,20 +57,20 @@ extern "C" {
 **/
 typedef struct{
 	//配置(速度)
-	#define	DE_SPEED		Move_Rated_Speed
-	bool		valid_speed;
-	int32_t	speed;
+	#define	DE_MAX_SPEED	(Move_Rated_Speed)
+	bool		valid_max_speed;
+	int32_t	max_speed;
 	//配置(加速加速度)
-	#define	DE_UP_ACC		Move_Rated_UpAcc
+	#define	DE_UP_ACC			(Move_Rated_UpAcc / 10)
 	bool		valid_up_acc;
 	int32_t	up_acc;
 	//配置(减速加速度)
-	#define	DE_UP_ACC		Move_Rated_UpAcc
+	#define	DE_Down_ACC		(Move_Rated_DownAcc / 10)
 	bool		valid_down_acc;
 	int32_t	down_acc;
 	float		down_acc_quick;	//快速运算数		1.0f / (2.0f * down_acc)
 	//静态配置的跟踪参数
-	int32_t		speed_locking_stop;	//允许直接抱死停车的速度
+	int32_t		speed_locking_stop;			//允许直接抱死停车的速度
 	//计算过程数据
 	int32_t		course_acc_integral;		//过程加速度积分(放大CONTROL_FREQ_HZ倍)
 	int32_t		course_speed;						//过程速度
@@ -85,9 +82,10 @@ typedef struct{
 }Location_Tracker_Typedef;
 extern Location_Tracker_Typedef	location_tck;
 
-void Location_Tracker_Set_Speed(int32_t value);		//位置跟踪器设置最大速度
+void Location_Tracker_Set_MaxSpeed(int32_t value);//位置跟踪器设置最大速度
 void Location_Tracker_Set_UpAcc(int32_t value);		//位置跟踪器设置加速加速度
 void Location_Tracker_Set_DownAcc(int32_t value);	//位置跟踪器设置减速加速度
+void Location_Tracker_Set_Default(void);					//位置跟踪器参数恢复
 
 void Location_Tracker_Init(void);																					//位置跟踪器初始化
 void Location_Tracker_NewTask(int32_t real_location, int32_t real_speed);	//位置跟踪器开始新任务

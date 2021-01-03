@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -87,6 +84,17 @@ void Move_Reconstruct_Set_OverTime(uint16_t value)
 	else{
 		move_reco.valid_overtime = false;
 	}
+}
+
+/**
+  * 运动重构器参数恢复
+  * @param  NULL
+  * @retval NULL
+**/
+void Move_Reconstruct_Set_Default(void)
+{
+	Move_Reconstruct_Set_DownAcc(DE_DOWN_ACC);
+	Move_Reconstruct_Set_OverTime(DE_OverTime);	
 }
 
 /**

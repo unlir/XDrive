@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -32,6 +29,7 @@
 	******
 	************************************************************************
 ******/
+
 
 //Oneself
 #include "gpio.h"
@@ -163,6 +161,32 @@ void REIN_GPIO_MT6816_ABZ_Init(void)
   HAL_GPIO_Init(MT6816_ABZ_Z_GPIO_Port, &GPIO_InitStruct);
   /* EXTI interrupt init*/
   HAL_NVIC_EnableIRQ(MT6816_ABZ_Z_EXTI_IRQn);		//启用MT6816_Z中断
+#endif
+}
+
+/********** Modbus **********/
+/********** Modbus **********/
+/********** Modbus **********/
+/**
+  * @brief  GPIO初始化(Modbus)
+  * @param  NULL
+  * @retval NULL
+*/
+void REIN_GPIO_Modbus_Init(void)
+{
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	
+#ifdef Modbus_RS485DIR_GPIO_CLK_ENABLE
+	/* GPIO Ports Clock Enable */
+	Modbus_RS485DIR_GPIO_CLK_ENABLE();		//启用RS485DIR端口时钟
+	/*Configure GPIO pin Output Level*/
+	Modbus_RS485DIR_GPIO_Port -> BRR = Modbus_RS485DIR_GPIO_Pin;	//DIR引脚启动输出低电平
+	/*Configure GPIO pins*/
+	GPIO_InitStruct.Pin = Modbus_RS485DIR_GPIO_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;		//推挽输出
+	GPIO_InitStruct.Pull = GPIO_NOPULL;						//禁用上下拉
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;	//低速
+	HAL_GPIO_Init(Modbus_RS485DIR_GPIO_Port, &GPIO_InitStruct);
 #endif
 }
 

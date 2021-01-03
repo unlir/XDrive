@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -60,11 +57,11 @@ extern "C" {
 **/
 typedef struct{
 	//配置(增加流梯度)
-	#define	De_Up_Rate	Move_Rated_UpCurrentRate
+	#define	De_Up_Rate		(Move_Rated_UpCurrentRate / 10)
 	bool		valid_up_rate;
 	int32_t	up_rate;
 	//配置(减流梯度)
-	#define	De_Down_Rate	Move_Rated_DownCurrentRate
+	#define	De_Down_Rate	(Move_Rated_DownCurrentRate / 10)
 	bool		valid_down_rate;
 	int32_t	down_rate;
 	//计算过程数据
@@ -77,6 +74,7 @@ extern Current_Tracker_Typedef	current_tck;
 
 void Current_Tracker_Set_UpRate(int32_t value);		//电流跟踪器设置增流变化率
 void Current_Tracker_Set_DownRate(int32_t value);	//电流跟踪器设置减流变化率
+void Current_Tracker_Set_Default(void);						//电流跟踪器参数恢复
 
 void Current_Tracker_Init(void);													//电流跟踪器初始化
 void Current_Tracker_NewTask(int16_t real_current);				//电流控制器开始新任务

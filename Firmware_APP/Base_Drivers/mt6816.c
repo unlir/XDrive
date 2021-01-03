@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -52,7 +49,7 @@
 #include "control_config.h"
 
 //编码器矫正数据位置(Quick)(Flash)
-uint16_t *Read_QuickCali_DATA = (uint16_t*)STOCKPILE_QUICAK_CALI_ADDR;
+uint16_t *Read_QuickCali_DATA = (uint16_t*)STOCKPILE_APP_CALI_ADDR;
 
 //GPIO输出
 #define MT6816_SPI_CS_H()		(MT6816_SPI_CS_GPIO_Port -> BSRR = MT6816_SPI_CS_Pin)
@@ -257,8 +254,8 @@ void REIN_MT6816_SPI_Signal_Init(void)
 	mt6816_spi.angle = 0;
 	
 	//配置外设
-	REIN_SPI_MT6816_SPI_Init();
 	REIN_GPIO_MT6816_SPI_Init();
+	REIN_SPI_MT6816_SPI_Init();
 }
 
 /**
@@ -270,7 +267,7 @@ void RINE_MT6816_SPI_Get_AngleData(void)
 {
 	uint16_t data_t[2];
 	uint16_t data_r[2];
-	uint8_t h_count = 0;
+	uint8_t h_count;
 	
 	data_t[0] = (0x80 | 0x03) << 8;
 	data_t[1] = (0x80 | 0x04) << 8;
@@ -286,6 +283,7 @@ void RINE_MT6816_SPI_Get_AngleData(void)
 		mt6816_spi.sample_data = ((data_r[0] & 0x00FF) << 8) | (data_r[1] & 0x00FF);
 		
 		//奇偶校验
+		h_count = 0;
 		for(uint8_t j=0; j<16; j++){
 			if(mt6816_spi.sample_data & (0x0001 << j))
 				h_count++;
@@ -331,6 +329,9 @@ void REIN_MT6816_Init(void)
 #else
 	#error "MT6816_Mode Invalid !!!"
 #endif
+	
+	//初始化阶段获取一次角度数据(过滤错误数据)(暂未查明复位后第一次读取数据丢失的原因)
+	REIN_MT6816_Get_AngleData();
 	
 	//检查校准区数据是否有效
 	mt6816.rectify_valid = true;

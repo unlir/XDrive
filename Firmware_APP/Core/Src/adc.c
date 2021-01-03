@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -56,7 +53,7 @@ void REIN_ADC_Init(void)
 
 #elif (XDrive_Run == XDrive_REIN_Basic_H1_1)
 	
-  /* GPIO初始化 */
+  /* AFIO初始化 */
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;

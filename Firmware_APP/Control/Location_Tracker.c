@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -59,17 +56,17 @@ Location_Tracker_Typedef	location_tck;
   * @param  value		最大速度
   * @retval true:成功 / false:错误
 **/
-void Location_Tracker_Set_Speed(int32_t value)
+void Location_Tracker_Set_MaxSpeed(int32_t value)
 {
 	value = abs(value);
 	if((value > 0) && (value <= Move_Rated_Speed))
 	{
-		location_tck.speed = value;
-		location_tck.valid_speed = true;
+		location_tck.max_speed = value;
+		location_tck.valid_max_speed = true;
 	}
 	else
 	{
-		location_tck.valid_speed = false;
+		location_tck.valid_max_speed = false;
 	}
 }
 
@@ -114,6 +111,18 @@ void Location_Tracker_Set_DownAcc(int32_t value)
 }
 
 /**
+  * 位置跟踪器参数恢复
+  * @param  NULL
+  * @retval NULL
+**/
+void Location_Tracker_Set_Default(void)
+{
+	Location_Tracker_Set_MaxSpeed(DE_MAX_SPEED);
+	Location_Tracker_Set_UpAcc(DE_UP_ACC);
+	Location_Tracker_Set_DownAcc(DE_Down_ACC);
+}
+
+/**
   * 位置跟踪器初始化
   * @param  tracker		位置跟踪器实例
   * @retval NULL
@@ -121,9 +130,9 @@ void Location_Tracker_Set_DownAcc(int32_t value)
 void Location_Tracker_Init()
 {
 	//前置配置无效时,加载默认配置
-	if(!location_tck.valid_speed)			{	Location_Tracker_Set_Speed(DE_SPEED);		}
+	if(!location_tck.valid_max_speed)	{	Location_Tracker_Set_MaxSpeed(DE_MAX_SPEED);		}
 	if(!location_tck.valid_up_acc)		{	Location_Tracker_Set_UpAcc(DE_UP_ACC);	}
-	if(!location_tck.valid_down_acc)	{	Location_Tracker_Set_DownAcc(DE_UP_ACC);	}
+	if(!location_tck.valid_down_acc)	{	Location_Tracker_Set_DownAcc(DE_Down_ACC);	}
 	
 	
 	//静态配置的跟踪参数
@@ -240,27 +249,27 @@ void Location_Tracker_Capture_Goal(int32_t goal_location)
 		/********************速度与位移方向同向(正方向)********************/
 		else if((location_sub > 0) && (location_tck.course_speed > 0))
 		{
-			if(location_tck.course_speed <= location_tck.speed)
+			if(location_tck.course_speed <= location_tck.max_speed)
 			{
 				//计算需要的减速位移
 				int32_t need_down_location = (int32_t)((float)location_tck.course_speed * (float)location_tck.course_speed * (float)location_tck.down_acc_quick);	//浮点运算
 				if(abs(location_sub) > need_down_location)
 				{
 					//正向加速到最大速度
-					if(location_tck.course_speed < location_tck.speed)
+					if(location_tck.course_speed < location_tck.max_speed)
 					{
 						Speed_Course_Integral(location_tck.up_acc);
-						if(location_tck.course_speed >= location_tck.speed)
+						if(location_tck.course_speed >= location_tck.max_speed)
 						{
 							location_tck.course_acc_integral = 0;
-							location_tck.course_speed = location_tck.speed;
+							location_tck.course_speed = location_tck.max_speed;
 						}
 					}
 					//正向稳速
-					//else if(location_tck.course_speed == location_tck.speed_max)
+					//else if(location_tck.course_speed == location_tck.max_speed_max)
 					//{}
 					//正向超速->减速
-					else if(location_tck.course_speed > location_tck.speed)
+					else if(location_tck.course_speed > location_tck.max_speed)
 					{
 						Speed_Course_Integral(-location_tck.down_acc);
 					}
@@ -290,27 +299,27 @@ void Location_Tracker_Capture_Goal(int32_t goal_location)
 		/********************速度与位移方向同向(负方向)********************/
 		else if((location_sub < 0) && (location_tck.course_speed < 0))
 		{
-			if(location_tck.course_speed >= -location_tck.speed)
+			if(location_tck.course_speed >= -location_tck.max_speed)
 			{
 				//计算需要的减速位移(有溢出风险的运算)
 				int32_t need_down_location = (int32_t)((float)location_tck.course_speed * (float)location_tck.course_speed * (float)location_tck.down_acc_quick);	//浮点运算
 				if(abs(location_sub) > need_down_location)
 				{
 					//反向加速到最大速度
-					if(location_tck.course_speed > -location_tck.speed)
+					if(location_tck.course_speed > -location_tck.max_speed)
 					{
 						Speed_Course_Integral(-location_tck.up_acc);
-						if(location_tck.course_speed <= -location_tck.speed)
+						if(location_tck.course_speed <= -location_tck.max_speed)
 						{
 							location_tck.course_acc_integral = 0;
-							location_tck.course_speed = -location_tck.speed;
+							location_tck.course_speed = -location_tck.max_speed;
 						}
 					}
 					//反向稳速
-					//else if(location_tck.course_speed == -location_tck.speed_max)
+					//else if(location_tck.course_speed == -location_tck.max_speed_max)
 					//{}
 					//反向超速->减速
-					else if(location_tck.course_speed < -location_tck.speed)
+					else if(location_tck.course_speed < -location_tck.max_speed)
 					{
 						Speed_Course_Integral(location_tck.down_acc);
 					}

@@ -69,6 +69,8 @@
 #define STOCKPILE_CONFIG_H
 
 /* ROM sizes */
+/* ROM sizes */
+/* ROM sizes */
 
 //DAPLINK_ROM_BL
 #define		DAPLINK_ROM_BL_START						(0x08000000)		//起始地址
@@ -76,16 +78,18 @@
 //DAPLINK_ROM_CONFIG_ADMIN
 #define		DAPLINK_ROM_CONFIG_ADMIN_START	(0x0800BC00)		//起始地址
 #define		DAPLINK_ROM_CONFIG_ADMIN_SIZE		(0x00000400)		//Flash容量     1K		DAPLink_BL(DAPLINK_ROM_CONFIG_ADMIN)
-//APP
+//APP_FIRMWARE
 #define		STOCKPILE_APP_FIRMWARE_ADDR			(0x0800C000)		//起始地址
-#define		STOCKPILE_APP_FIRMWARE_SIZE			(0x0000BC00)		//Flash容量    47K    XDrive(APP)
-//QUICK_CALI
-#define		STOCKPILE_QUICAK_CALI_ADDR			(0x08017C00)		//起始地址
-#define		STOCKPILE_QUICAK_CALI_SIZE			(0x00008000)		//Flash容量    32K    Quicak_Cali(可容纳16K-2byte校准数据-即最大支持14位编码器的校准数据)
-//DATA
-#define		STOCKPILE_DATA_ADDR							(0x0801FC00)		//起始地址
-#define		STOCKPILE_DATA_SIZE							(0x00000400)		//Flash容量     1K    XDrive(DATA)
+#define		STOCKPILE_APP_FIRMWARE_SIZE			(0x0000BC00)		//Flash容量    47K    XDrive(APP_FIRMWARE)
+//APP_CALI
+#define		STOCKPILE_APP_CALI_ADDR					(0x08017C00)		//起始地址
+#define		STOCKPILE_APP_CALI_SIZE					(0x00008000)		//Flash容量    32K    XDrive(APP_CALI)(可容纳16K-2byte校准数据-即最大支持14位编码器的校准数据)
+//APP_DATA
+#define		STOCKPILE_APP_DATA_ADDR					(0x0801FC00)		//起始地址
+#define		STOCKPILE_APP_DATA_SIZE					(0x00000400)		//Flash容量     1K    XDrive(APP_DATA)
 
+/* RAM sizes */
+/* RAM sizes */
 /* RAM sizes */
 
 #define STOCKPILE_RAM_APP_START           (0x20000000)

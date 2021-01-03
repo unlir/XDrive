@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -44,6 +41,9 @@
 
 #include "main.h"
 
+//Application_User_Core
+#include "usart.h"
+
 //Base_Drivers
 #include "mt6816.h"
 
@@ -65,7 +65,12 @@ uint8_t lit_1ms_divider = 0;			//副时钟分频器(1ms)
 
 struct Loop_IT_Typedef{
 	//中断计数器
-	uint32_t systick_count;
+	uint32_t	systick_count;
+	uint32_t	exti7_count;
+	uint32_t	time3_count;
+	uint32_t	dma1_ch4_count;
+	uint32_t	dma1_ch5_count;
+	uint32_t	uart1_count;
 }loop_it;
 
 /**
@@ -86,7 +91,6 @@ void LoopIT_SysTick_20KHz(void)
 **/
 void SysTick_Handler(void)
 {
-	loop_it.systick_count++;
 	if(systick_20khz_flag){
 		//编码器数据采集
 		REIN_MT6816_Get_AngleData();
@@ -108,9 +112,103 @@ void SysTick_Handler(void)
 	else{
 		HAL_IncTick();	//提供HAL库的1ms中断调用,维持HAL_Delay等超时动作的有效执行
 	}
+	
+	loop_it.systick_count++;
 }
 
-#if(XDrive_Run == XDrive_REIN_Basic_H1_0)
+#if (XDrive_Run == XDrive_REIN_Basic_H1_1)
+/**
+  * @brief  中断优先级覆盖
+  * @param  NULL
+  * @retval NULL
+**/
+void LoopIT_Priority_Overlay(void)
+{
+	/**********中断优先级**********/
+	//中断优先级规则
+	//0：输入信号关键中断
+	//1：传感器关键中断
+	//2：任务中断
+	//3: 通讯中断
+
+	//中断号																				优先级			中断源												用途
+  HAL_NVIC_SetPriority(SIGNAL_COUNT_DIR_Get_IRQn,	0,	0);		//外部中断(SIGNAL_COUNT_DIR)		获取SIGNAL_COUNT计数器方向
+	HAL_NVIC_SetPriority(SIGNAL_PWM_Get_IRQn,				0,	0);		//定时器捕获(SIGNAL_PWM_PWM)		获取SIGNAL_PWM两个边沿计数值
+	HAL_NVIC_SetPriority(SysTick_IRQn,							2,	0);		//系统定时器										核心时钟
+
+	HAL_NVIC_SetPriority(Modbus_UART_TX_DMA_IRQn,		3,	0);		//Modbus_TX_DMA中断							响应发送完成			
+	HAL_NVIC_SetPriority(Modbus_UART_RX_DMA_IRQn,		3,	0);		//Modbus_RX_DMA中断							响应接收完成
+	HAL_NVIC_SetPriority(Modbus_UART_IRQn,					3,	0);		//Modbus_UART中断								响应串口收发中断
+}
+
+/**
+  * @brief EXTI9_5_IRQHandler
+**/
+void EXTI9_5_IRQHandler(void)
+{
+	//PA1中断
+  if(__HAL_GPIO_EXTI_GET_IT(SIGNAL_COUNT_DIR_Pin) != 0x00u){
+    __HAL_GPIO_EXTI_CLEAR_IT(SIGNAL_COUNT_DIR_Pin);
+		Signal_Count_Dir_Res();		//信号COUNT_DIR中断
+  }
+	
+	loop_it.exti7_count++;
+}
+
+/**
+  * @brief TIM3_IRQHandler
+**/
+void TIM3_IRQHandler(void)
+{
+	//TIM3的中断标志清除由PWM处理函数识别并清除
+	Signal_PWM_TIM_Callback();	//SIGNAL_PWM采集中断回调
+	
+	loop_it.time3_count++;
+}
+
+/**
+  * @brief DMA1_Channel4_IRQHandler
+**/
+void DMA1_Channel4_IRQHandler(void)
+{
+	//调用HAL的DMA中断处理函数,以调用串口发送函数(在uart_mixed中实例化)
+	HAL_DMA_IRQHandler(&hdma_usart1_tx);
+	
+	loop_it.dma1_ch4_count++;
+}
+
+/**
+  * @brief DMA1_Channel5_IRQHandler
+**/
+void DMA1_Channel5_IRQHandler(void)
+{
+	//调用HAL的DMA中断处理函数,以调用串口接收函数(在uart_mixed中实例化)
+	HAL_DMA_IRQHandler(&hdma_usart1_rx);
+	
+	loop_it.dma1_ch5_count++;
+}
+
+/**
+  * @brief USART1_IRQHandler
+**/
+void USART1_IRQHandler(void)
+{
+	//调用HAL的UART中断处理函数,以清理未知的中断事件
+  HAL_UART_IRQHandler(&huart1);
+	
+	//检测串口是否产生了空闲中断
+  if(__HAL_UART_GET_FLAG(&huart1, UART_FLAG_IDLE))
+  {
+    __HAL_UART_CLEAR_IDLEFLAG(&huart1);
+		
+		//调用串口接收函数(在uart_mixed中实例化)
+    HAL_UART_RxCpltCallback(&huart1);
+  }
+	
+	loop_it.uart1_count++;
+}
+
+#elif (XDrive_Run == XDrive_REIN_Basic_H1_0)
 /**
   * @brief  中断优先级覆盖
   * @param  NULL
@@ -134,7 +232,7 @@ void LoopIT_Priority_Overlay(void)
 
 #if (MT6816_Mode == MT6816_Mode_PWM)
 /**
-  * @brief MT6816_PWM_Get_IRQn
+  * @brief TIM3_IRQHandler
 **/
 void TIM3_IRQHandler(void)
 {
@@ -145,7 +243,7 @@ void TIM3_IRQHandler(void)
 
 #if (MT6816_Mode == MT6816_Mode_ABZ)
 /**
-  * @brief MT6816_ABZ_Z_EXTI_IRQn
+  * @brief EXTI15_10_IRQHandler
 **/
 void EXTI15_10_IRQHandler(void)
 {
@@ -158,7 +256,7 @@ void EXTI15_10_IRQHandler(void)
 #endif
 
 /**
-  * @brief SIGNAL_PWM_Get_IRQn
+  * @brief TIM2_IRQHandler
 **/
 void TIM2_IRQHandler(void)
 {
@@ -167,7 +265,7 @@ void TIM2_IRQHandler(void)
 }
 
 /**
-  * @brief SIGNAL_COUNT_DIR_Get_IRQn
+  * @brief EXTI1_IRQHandler
 **/
 void EXTI1_IRQHandler(void)
 {
@@ -178,49 +276,6 @@ void EXTI1_IRQHandler(void)
   }
 }
 
-#elif (XDrive_Run == XDrive_REIN_Basic_H1_1)
-/**
-  * @brief  中断优先级覆盖
-  * @param  NULL
-  * @retval NULL
-**/
-void LoopIT_Priority_Overlay(void)
-{
-	/**********中断优先级**********/
-	//中断优先级规则
-	//0：输入信号关键中断
-	//1：传感器关键中断
-	//2：任务中断
-
-	//中断号																				优先级			中断源												用途
-  HAL_NVIC_SetPriority(SIGNAL_COUNT_DIR_Get_IRQn,	0,	0);		//外部中断(SIGNAL_COUNT_DIR)		获取SIGNAL_COUNT计数器方向
-	HAL_NVIC_SetPriority(SIGNAL_PWM_Get_IRQn,				0,	0);		//定时器捕获(SIGNAL_PWM_PWM)		获取SIGNAL_PWM两个边沿计数值
-	HAL_NVIC_SetPriority(SysTick_IRQn,							2,	0);		//系统定时器										核心时钟
-}
-
-/**
-  * @brief SIGNAL_PWM_Get_IRQn
-**/
-void TIM3_IRQHandler(void)
-{
-	//TIM2的中断标志清除由PWM处理函数识别并清除
-	Signal_PWM_TIM_Callback();	//SIGNAL_PWM采集中断回调
-}
-
-/**
-  * @brief SIGNAL_COUNT_DIR_Get_IRQn
-**/
-void EXTI9_5_IRQHandler(void)
-{
-	//PA1中断
-  if(__HAL_GPIO_EXTI_GET_IT(SIGNAL_COUNT_DIR_Pin) != 0x00u){
-    __HAL_GPIO_EXTI_CLEAR_IT(SIGNAL_COUNT_DIR_Pin);
-		Signal_Count_Dir_Res();		//信号COUNT_DIR中断
-  }
-}
-
 #else
-
 	#error "undefined"
-
 #endif

@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -48,6 +45,7 @@
 //Application_User_Core
 #include "dma.h"
 #include "adc.h"
+#include "usart.h"
 
 //Base_Drivers
 #include "kernel_port.h"
@@ -58,8 +56,6 @@
 #include "signal_port.h"
 #include "motor_control.h"
 #include "encode_cali.h"
-
-//Data_Link
 
 //Debug
 #include "button.h"
@@ -151,6 +147,9 @@ void loop(void)
 	//进行关键外设初始化前等待电源稳定
 	HAL_Delay(1000);
 	
+//	//存储数据恢复
+//	Slave_Reg_Init();			//校验Flash数据并配置参数
+	
 	//基本外设初始化(Base_Drivers)(LOOP直接进行)
 	REIN_DMA_Init();
 	REIN_ADC_Init();	
@@ -164,17 +163,26 @@ void loop(void)
 	Calibration_Init();		//校准器初始化
 	Motor_Control_Init();	//电机控制初始化
 	
+	//通讯接口初始化
+	REIN_GPIO_Modbus_Init();	//RS485_DIR
+	REIN_UART_Modbus_Init();	//串口初始化
+	Signal_Modbus_Init();			//Modbu接口初始化
+	
 	//调整中断配置
 	LoopIT_Priority_Overlay();	//重写-中断优先级覆盖
 	LoopIT_SysTick_20KHz();			//重写-系统计时器修改为20KHz
 	
-	for(;;)//FOR Circulation
+	//临时校准
+	if(HAL_GPIO_ReadPin(BUTTON_DOWN_GPIO_Port, BUTTON_DOWN_Pin) == GPIO_PIN_RESET)
+		encode_cali.trigger = true;		//触发校准
+	
+	//FOR Circulation
+	for(;;)
 	{
 		major_cycle_count++;
 		time_second_run();
 
-		//校准器主程序回调
-		Calibration_Loop_Callback();		
+		Calibration_Loop_Callback();							//校准器主程序回调					用于校准环节最后的数据解算
 	}
 }
 /*************************************

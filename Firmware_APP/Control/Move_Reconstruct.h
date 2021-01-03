@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -64,11 +61,11 @@ extern "C" {
 **/
 typedef struct{
 	//配置(减速加速度)
-	#define	DE_DOWN_ACC		Move_Rated_DownAcc
+	#define	DE_DOWN_ACC		(Move_Rated_DownAcc / 10)
 	bool		valid_down_acc;
 	int32_t	down_acc;
 	//配置(超时时间ms)
-	#define	DE_OverTime		200
+	#define	DE_OverTime		(200)
 	bool		valid_overtime;
 	uint16_t	overtime;
 	//动态跟踪参数
@@ -91,6 +88,7 @@ extern Move_Reconstruct_Typedef move_reco;
 
 void Move_Reconstruct_Set_DownAcc(int32_t value);		//运动重构器设置减速加速度
 void Move_Reconstruct_Set_OverTime(uint16_t value);	//运动重构器设置超时时间
+void Move_Reconstruct_Set_Default(void);						//运动重构器参数恢复
 
 void Move_Reconstruct_Init(void);																							//运动重构器初始化
 void Move_Reconstruct_NewTask(int32_t real_location, int32_t real_speed);			//运动重构器开始新任务

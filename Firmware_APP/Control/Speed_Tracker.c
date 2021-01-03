@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -88,6 +85,17 @@ void Speed_Tracker_Set_DownAcc(int32_t value)
 	else{
 		speed_tck.valid_down_acc = true;
 	}
+}
+
+/**
+  * 速度跟踪器参数恢复
+  * @param  NULL
+  * @retval NULL
+**/
+void Speed_Tracker_Set_Default(void)
+{
+	Speed_Tracker_Set_UpAcc(DE_UP_ACC);
+	Speed_Tracker_Set_DownAcc(DE_DOWN_ACC);
 }
 
 /**

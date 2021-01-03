@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -77,6 +74,7 @@ extern Control_PID_Typedef pid;
 void Control_PID_SetKP(uint16_t _k);		//KP参数配置
 void Control_PID_SetKI(uint16_t _k);		//KI参数配置
 void Control_PID_SetKD(uint16_t _k);		//KD参数配置
+void Control_PID_Set_Default(void);			//PID参数恢复
 //初始化
 void Control_PID_Init(void);
 void Control_PID_To_Electric(int32_t _speed);
@@ -104,6 +102,7 @@ void Control_DCE_SetKP(uint16_t _k);		//KP参数配置
 void Control_DCE_SetKI(uint16_t _k);		//KI参数配置
 void Control_DCE_SetKV(uint16_t _k);		//KV参数配置
 void Control_DCE_SetKD(uint16_t _k);		//KD参数配置
+void Control_DCE_Set_Default(void);			//DCE参数恢复
 //初始化
 void Control_DCE_Init(void);
 void Control_DCE_To_Electric(int32_t _location, int32_t _speed);
@@ -127,6 +126,17 @@ void Motor_MultiDebug_Speed(void);		//多功能调试速度
 
 /****************************************  Motor_Control  ****************************************/
 /****************************************  Motor_Control  ****************************************/
+/**
+  * 控制器状态
+**/
+typedef enum{
+	Control_State_Stop				= 0x00,	//停止
+	Control_State_Finish			= 0x01,	//任务完成
+	Control_State_Running			= 0x02,	//任务执行中
+	Control_State_Overload		= 0x03,	//过载
+	Control_State_Stall				= 0x04,	//堵转
+}Motor_State;
+
 /**
   * 模式
 **/
@@ -158,14 +168,15 @@ typedef enum{
 **/
 typedef struct{
 	//配置(模式)
-	#define			De_Motor_Mode		Control_Mode_Stop	//默认配置
+	#define			De_Motor_Mode		Motor_Mode_Digital_Location	//默认配置
 	bool				valid_mode;		//有效标志
 	Motor_Mode	mode_order;		//电机模式_新指令的
-	Motor_Mode	mode_run;			//电机模式_运行中的
 	//配置(堵转)
 	#define			De_Motor_Stall	true		//默认堵转保护开关
 	bool				valid_stall_switch;			//堵转保护开关有效标志
 	bool				stall_switch;						//堵转保护开关
+	//模式
+	Motor_Mode	mode_run;			//电机模式_运行中的
 	//读取
 	int32_t		real_lap_location;				//读取单圈位置
 	int32_t		real_lap_location_last;		//读取单圈位置
@@ -197,12 +208,26 @@ typedef struct{
 	//堵转识别
 	uint32_t	stall_time_us;	//堵转计时器
 	bool			stall_flag;			//堵转标志
+	//过载识别
+	uint32_t	overload_time_us;	//过载计时器
+	bool			overload_flag;		//过载标志
+	//状态
+	Motor_State		state;			//统一的电机状态
 }Motor_Control_Typedef;
 extern Motor_Control_Typedef motor_control;
 
 //参数配置
 void Motor_Control_SetMotorMode(Motor_Mode _mode);	//控制模式
 void Motor_Control_SetStallSwitch(bool _switch);		//堵转保护开关
+void Motor_Control_SetDefault(void);								//控制模式参数恢复
+
+//数据写入
+void Motor_Control_Write_Goal_Location(int32_t value);//写入目标位置
+void Motor_Control_Write_Goal_Speed(int32_t value);		//写入目标速度
+void Motor_Control_Write_Goal_Current(int16_t value);	//写入目标电流
+void Motor_Control_Write_Goal_Disable(uint16_t value);//写入目标失能
+void Motor_Control_Write_Goal_Brake(uint16_t value);	//写入目标刹车
+
 //任务执行
 void Motor_Control_Init(void);											//电机控制初始化
 void Motor_Control_Callback(void);									//控制器任务回调

@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -45,12 +42,99 @@
 //Oneself
 #include "signal_port.h"
 
-//Core
+//Application_User_Core
 #include "gpio.h"
 #include "tim.h"
+#include "usart.h"
+
+//Base_Drivers
+#include "uart_mixed.h"
 
 //Control
 #include "Control_Config.h"
+
+/****************************************** Modbus接口 ******************************************/
+/****************************************** Modbus接口 ******************************************/
+/****************************************** Modbus接口 ******************************************/
+//Signal_Modbus接口
+Signal_Modbus_Typedef signal_modbus;
+
+/**
+	* @brief  Modbus接口从机配置
+  * @param  NULL
+  * @retval NULL
+**/
+void Signal_Modbus_Slave_Config(void)
+{
+	if((signal_modbus.id_run >= 1) && (signal_modbus.id_run <= 247))	//App代码支持(1~247)
+	{
+
+	}
+}
+
+/**
+  * @brief  设置Modbus接口ID
+  * @param  value: 串口波特率
+  * @retval NULL
+**/
+void Signal_Modbus_Set_ID(uint16_t value)
+{
+	if((value >= 1) && (value <= 247))
+	{
+		signal_modbus.id_order = value;
+		signal_modbus.valid_modbus_id = true;
+	}
+	else
+	{
+		signal_modbus.valid_modbus_id = false;
+	}
+}
+
+/**
+  * @brief  Modbus配置恢复
+  * @param  NULL
+  * @retval NULL
+**/
+void Signal_Modbus_Set_Default(void)
+{
+	Signal_Modbus_Set_ID(	De_Modbus_ID);			//设置Modbus接口ID
+}
+
+/**
+  * @brief  Modbus接口初始化
+  * @param  NULL
+  * @retval NULL
+**/
+void Signal_Modbus_Init(void)
+{
+	//配置
+	if(!signal_modbus.valid_modbus_id)			Signal_Modbus_Set_ID(	De_Modbus_ID);			//设置Modbus接口ID
+	
+	//加载配置
+	signal_modbus.id_run = signal_modbus.id_order;
+}
+
+/**
+  * @brief  Modbus低优先级回调
+  * @param  NULL
+  * @retval NULL
+**/
+void Signal_Modbus_Low_Priority_Callback(void)
+{
+	//Modbus接口配置
+	if(signal_modbus.id_order != signal_modbus.id_run)
+	{
+		//加载配置
+		signal_modbus.id_run = signal_modbus.id_order;
+		
+#if   (Demo4_Dir == Modbus_Dir_Master)
+
+#elif (Demo4_Dir == Modbus_Dir_Slaves)
+		//从机配置更新
+		Signal_Modbus_Slave_Config();
+#endif
+	}
+}
 
 /****************************************** Signal_Count接口 ******************************************/
 /****************************************** Signal_Count接口 ******************************************/
@@ -116,17 +200,25 @@ void Signal_Count_SetDirInve(bool control)
 }
 
 /**
-  * @brief  SignalPort初始化
+  * @brief  Signal_Count采集初始化
   * @param  NULL
   * @retval NULL
 **/
 void Signal_Count_Init(void)
 {
 	//配置
-	if(!sg_cut.valid_subdivide)	Signal_Count_SetFraction(De_SubDivide);	//脉冲信号细分
-	if(!sg_cut.valid_dir_inve)	Signal_Count_SetEnInve(De_EN_inve);			//使能信号翻转
-	if(!sg_cut.valid_dir_inve)	Signal_Count_SetDirInve(De_DIR_inve);		//方向信号翻转
-	
+	if(!sg_cut.valid_subdivide)	Signal_Count_SetFraction(	De_SubDivide);	//脉冲信号细分
+	if(!sg_cut.valid_dir_inve)	Signal_Count_SetEnInve(		De_EN_inve);		//使能信号翻转
+	if(!sg_cut.valid_dir_inve)	Signal_Count_SetDirInve(	De_DIR_inve);		//方向信号翻转
+}
+
+/**
+  * @brief  Signal_Count采集配置
+  * @param  NULL
+  * @retval NULL
+**/
+void Signal_Count_Config(void)
+{
 	//外设初始化
 	REIN_GPIO_SIGNAL_COUNT_Init();
 	REIN_TIM_SIGNAL_COUNT_Init();
@@ -136,11 +228,11 @@ void Signal_Count_Init(void)
 }
 
 /**
-  * @brief  SignalPort清理
+  * @brief  Signal_Count清理配置
   * @param  NULL
   * @retval NULL
 **/
-void Signal_Count_DeInit(void)
+void Signal_Count_DeConfig(void)
 {
 	//外设清理
 	REIN_GPIO_SIGNAL_COUNT_DeInit();
@@ -344,22 +436,47 @@ void Signal_PWM_Set_BottomCurrent(int32_t current)
 }
 
 /**
-  * @brief  Signal_PWM采集初始化
+  * @brief  Signal_PWM参数恢复
+  * @param  NULL
+  * @retval NULL
+**/
+void Signal_PWM_Set_Default(void)
+{
+	Signal_PWM_Set_TopWidth(De_TOP_Width);
+	Signal_PWM_Set_BottomWidth(De_BOTTOM_Width);
+	Signal_PWM_Set_TopLocation(De_TOP_Location);
+	Signal_PWM_Set_BottomLocation(De_BOTTOM_Location);
+	Signal_PWM_Set_TopSpeed(De_TOP_Speed);
+	Signal_PWM_Set_BottomSpeed(De_BOTTOM_Speed);
+	Signal_PWM_Set_TopCurrent(De_TOP_Current);
+	Signal_PWM_Set_BottomCurrent(De_BOTTOM_Current);
+}
+
+/**
+  * @brief  Signal_PWM初始化
   * @param  NULL
   * @retval NULL
 **/
 void Signal_PWM_Init(void)
 {
 	//配置
-	if(!sg_pwm.valid_top_width)				Signal_PWM_Set_TopWidth(De_TOP_Width);
-	if(!sg_pwm.valid_bottom_width)		Signal_PWM_Set_BottomWidth(De_BOTTOM_Width);
-	if(!sg_pwm.valid_top_location)		Signal_PWM_Set_TopLocation(De_TOP_Location);
-	if(!sg_pwm.valid_bottom_location)	Signal_PWM_Set_BottomLocation(De_BOTTOM_Location);
-	if(!sg_pwm.valid_top_speed)				Signal_PWM_Set_TopSpeed(De_TOP_Speed);
-	if(!sg_pwm.valid_bottom_speed)		Signal_PWM_Set_BottomSpeed(De_BOTTOM_Speed);
-	if(!sg_pwm.valid_top_current)			Signal_PWM_Set_TopCurrent(De_TOP_Current);
-	if(!sg_pwm.valid_bottom_current)	Signal_PWM_Set_BottomCurrent(De_BOTTOM_Current);
+	if(!sg_pwm.valid_top_width)				Signal_PWM_Set_TopWidth(				De_TOP_Width				);
+	if(!sg_pwm.valid_bottom_width)		Signal_PWM_Set_BottomWidth(			De_BOTTOM_Width			);
+	if(!sg_pwm.valid_top_location)		Signal_PWM_Set_TopLocation(			De_TOP_Location			);
+	if(!sg_pwm.valid_bottom_location)	Signal_PWM_Set_BottomLocation(	De_BOTTOM_Location	);
+	if(!sg_pwm.valid_top_speed)				Signal_PWM_Set_TopSpeed(				De_TOP_Speed				);
+	if(!sg_pwm.valid_bottom_speed)		Signal_PWM_Set_BottomSpeed(			De_BOTTOM_Speed			);
+	if(!sg_pwm.valid_top_current)			Signal_PWM_Set_TopCurrent(			De_TOP_Current			);
+	if(!sg_pwm.valid_bottom_current)	Signal_PWM_Set_BottomCurrent(		De_BOTTOM_Current		);
+}
 
+/**
+  * @brief  Signal_PWM采集配置
+  * @param  NULL
+  * @retval NULL
+**/
+void Signal_PWM_Config(void)
+{
 	//外设初始化
 	REIN_GPIO_SIGNAL_PWM_Init();
 	REIN_TIM_SIGNAL_PWM_Init();
@@ -378,11 +495,11 @@ void Signal_PWM_Init(void)
 }
 
 /**
-  * @brief  Signal_PWM清理
+  * @brief  Signal_PWM清理配置
   * @param  NULL
   * @retval NULL
 **/
-void Signal_PWM_DeInit(void)
+void Signal_PWM_DeConfig(void)
 {
 	//外设清理
 	REIN_GPIO_SIGNAL_PWM_DeInit();
@@ -551,7 +668,12 @@ Signal_MoreIO_Typedef signal_moreio;
 **/
 void Signal_MoreIO_Init(void)
 {
+	//预设模式(Disable)
 	signal_moreio.mode = MoreIO_Mode_Disable;
+	
+	//MoreIO不同模式的参数初始化
+	Signal_Count_Init();		//Signal_Count采集初始化
+	Signal_PWM_Init();			//Signal_PWM采集初始化
 }
 
 /**
@@ -569,21 +691,21 @@ void Signal_MoreIO_Config(MoreIO_Mode mode)
 	switch(signal_moreio.mode)
 	{
 		case MoreIO_Mode_Disable:																			break;		//Disable
-		case MoreIO_Mode_PWM_Location:			Signal_PWM_DeInit();			break;		//PWM位置
-		case MoreIO_Mode_PWM_Speed:					Signal_PWM_DeInit();			break;		//PWM速度
-		case MoreIO_Mode_PWM_Current:				Signal_PWM_DeInit();			break;		//PWM电流
-		case MoreIO_Mode_PULSE_Locatioon:		Signal_Count_DeInit();		break;		//PULSE位置
+		case MoreIO_Mode_PWM_Location:			Signal_PWM_DeConfig();		break;		//PWM位置
+		case MoreIO_Mode_PWM_Speed:					Signal_PWM_DeConfig();		break;		//PWM速度
+		case MoreIO_Mode_PWM_Current:				Signal_PWM_DeConfig();		break;		//PWM电流
+		case MoreIO_Mode_PULSE_Locatioon:		Signal_Count_DeConfig();	break;		//PULSE位置
 	}
 
 	//初始化新模式
 	signal_moreio.mode = mode;
 	switch(signal_moreio.mode)
 	{
-		case MoreIO_Mode_Disable:																		break;		//Disable
-		case MoreIO_Mode_PWM_Location:			Signal_PWM_Init();			break;		//PWM位置
-		case MoreIO_Mode_PWM_Speed:					Signal_PWM_Init();			break;		//PWM速度
-		case MoreIO_Mode_PWM_Current:				Signal_PWM_Init();			break;		//PWM电流
-		case MoreIO_Mode_PULSE_Locatioon:		Signal_Count_Init();		break;		//PULSE位置
+		case MoreIO_Mode_Disable:																			break;		//Disable
+		case MoreIO_Mode_PWM_Location:			Signal_PWM_Config();			break;		//PWM位置
+		case MoreIO_Mode_PWM_Speed:					Signal_PWM_Config();			break;		//PWM速度
+		case MoreIO_Mode_PWM_Current:				Signal_PWM_Config();			break;		//PWM电流
+		case MoreIO_Mode_PULSE_Locatioon:		Signal_Count_Config();		break;		//PULSE位置
 	}
 }
 

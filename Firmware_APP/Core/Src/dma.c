@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -33,6 +30,7 @@
 	************************************************************************
 ******/
 
+
 //Oneself
 #include "dma.h"
 
@@ -45,4 +43,9 @@ void REIN_DMA_Init(void)
 {
 	//启动时钟
   __HAL_RCC_DMA1_CLK_ENABLE();
+	
+  //启用DMA1_CH4中断(USART1_TX)
+  HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+  //启用DMA1_CH5中断(USART1_RX)
+  HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 }

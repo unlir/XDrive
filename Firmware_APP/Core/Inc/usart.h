@@ -31,8 +31,8 @@
 ******/
 
 
-#ifndef __GPIO_H
-#define __GPIO_H
+#ifndef __USART_H
+#define __USART_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,39 +41,47 @@ extern "C" {
 //引用端口定义
 #include "kernel_port.h"
 
-/********** Button **********/
-/********** Button **********/
-/********** Button **********/
-void REIN_GPIO_Button_Init(void);  	 //GPIO初始化(Button)
+extern UART_HandleTypeDef huart1;
+extern DMA_HandleTypeDef hdma_usart1_tx;
+extern DMA_HandleTypeDef hdma_usart1_rx;
 
-/********** HwElec **********/
-/********** HwElec **********/
-/********** HwElec **********/
-void REIN_GPIO_HwElec_Init(void);   	//GPIO初始化(HwElec)
+//串口接口默模式
+typedef enum{
+	Uart_Mode_1SNP = 0x00,	//(1个停止位) (无校验)
+	Uart_Mode_1SEP = 0x01,	//(1个停止位) (偶数校验)
+	Uart_Mode_1SOP = 0x02,	//(1个停止位) (奇数校验)
+	Uart_Mode_2SNP = 0x03,	//(2个停止位) (无校验)
+	Uart_Mode_2SEP = 0x04,	//(2个停止位) (偶数校验)
+	Uart_Mode_2SOP = 0x05,	//(2个停止位) (奇数校验)
+}Uart_Mode;
 
-/********** MT6816 **********/
-/********** MT6816 **********/
-/********** MT6816 **********/
-void REIN_GPIO_MT6816_ABZ_Init(void);  //GPIO初始化(MT6816_ABZ)
-void REIN_GPIO_MT6816_SPI_Init(void);  //GPIO初始化(MT6916_SPI)
+/**
+  * 动态串口结构体
+**/
+typedef struct{
+	//配置(串口模式)
+	#define			De_Uart_Mode			Uart_Mode_1SNP	//默认
+	bool				valid_uart_mode;									//串口模式配置有效
+	Uart_Mode		uart_run;					//运行模式
+	Uart_Mode		uart_order;				//模式(存储数据,下次一定)
+	//配置(波特率)
+	#define		De_Uart_BaudRate	(115200)		//默认
+	bool			valid_uart_baudrate;				//串口波特率配置有效
+	uint32_t	baud_rate_run;		//波特率
+	uint32_t	baud_rate_order;	//波特率(存储数据,下次一定)
+}Dynamic_Uart_Typedef;
 
 /********** Modbus **********/
 /********** Modbus **********/
 /********** Modbus **********/
-void REIN_GPIO_Modbus_Init(void);			//GPIO初始化(Modbus)
+extern Dynamic_Uart_Typedef dyn_uart1;
 
-/********** OLED **********/
-/********** OLED **********/
-/********** OLED **********/
-void REIN_GPIO_OLED_Init(void);			 //GPIO初始化(OLED)
+void REIN_UART_Modbus_Set_Mode(Uart_Mode value);		//设置Uart模式
+void REIN_UART_Modbus_Set_BaudRate(uint32_t value);	//设置Uart波特率
+void REIN_UART_Modbus_Set_Default(void);						//串口参数恢复
 
-/********** SIGNAL **********/
-/********** SIGNAL **********/
-/********** SIGNAL **********/
-void REIN_GPIO_SIGNAL_COUNT_Init(void);		//GPIO初始化(SIGNAL_COUNT)
-void REIN_GPIO_SIGNAL_COUNT_DeInit(void);	//GPIO清理(SIGNAL_COUNT)
-void REIN_GPIO_SIGNAL_PWM_Init(void);			//GPIO初始化(SIGNAL_PWM)
-void REIN_GPIO_SIGNAL_PWM_DeInit(void);		//GPIO清理(SIGNAL_PWM)
+void REIN_UART_Modbus_Init(void);										//UART_Modbus初始化
+void REIN_UART_Modbus_Low_Priority_Callback(void);	//Modbus低优先级回调
 
 #ifdef __cplusplus
 }

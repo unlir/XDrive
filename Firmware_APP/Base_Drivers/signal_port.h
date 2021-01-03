@@ -2,15 +2,12 @@
 	************************************************************************
 	******
 	** @project : XDrive_Step
+	** @brief   : Stepper motor with multi-function interface and closed loop function. 
 	** @brief   : 具有多功能接口和闭环功能的步进电机
 	** @author  : unlir (知不知啊)
 	** @contacts: QQ.1354077136
 	******
 	** @address : https://github.com/unlir/XDrive
-	******
-	** @issuer  : REIN ( 知驭 实验室) (QQ: 857046846)             (discuss)
-	** @issuer  : IVES (艾维斯实验室) (QQ: 557214000)             (discuss)
-	** @issuer  : X_Drive_Develop     (QQ: Contact Administrator) (develop)
 	******
 	************************************************************************
 	******
@@ -33,6 +30,7 @@
 	************************************************************************
 ******/
 
+
 /*****
   ** @file     : signal_port.c/h
   ** @brief    : 信号接口
@@ -51,6 +49,34 @@ extern "C" {
 
 //引用端口定义
 #include "kernel_port.h"
+
+/****************************************** Modbus接口 ******************************************/
+/****************************************** Modbus接口 ******************************************/
+/****************************************** Modbus接口 ******************************************/
+//Demo_Dir
+#define Modbus_Dir_Master			0x00			//主机
+#define Modbus_Dir_Slaves			0x01			//从机
+
+#define Demo4_Dir			Modbus_Dir_Master
+
+/**
+  * Modbus接口结构体
+**/
+typedef struct{
+	//配置(ID)
+	#define		De_Modbus_ID	1			//默认
+	bool			valid_modbus_id;			//Modbus_ID配置有效
+	//配置
+	uint16_t	id_run;					//ID
+	uint16_t	id_order;				//Modbus_ID(存储数据,下次一定)
+}Signal_Modbus_Typedef;
+extern Signal_Modbus_Typedef signal_modbus;
+
+void Signal_Modbus_Set_ID(uint16_t value);				//设置Modbus接口ID
+void Signal_Modbus_Set_Default(void);							//Modbus配置恢复
+
+void Signal_Modbus_Init(void);										//Modbus接口初始化
+void Signal_Modbus_Low_Priority_Callback(void);		//Modbus低优先级回调
 
 /****************************************** Signal_Count接口 ******************************************/
 /****************************************** Signal_Count接口 ******************************************/
@@ -86,9 +112,14 @@ extern Signal_Count_Typedef sg_cut;
 void Signal_Count_SetFraction(uint16_t freq);		//Signal_Count设置细分值
 void Signal_Count_SetEnInve(bool control);			//Signal_Count设置使能翻转
 void Signal_Count_SetDirInve(bool control);			//Signal_Count设置方向翻转
+//等待添加恢复函数
+
+//初始化
+void Signal_Count_Init(void);					//Signal_Count采集初始化
+
 //功能接口
-void Signal_Count_Init(void);					//Signal_Count初始化
-void Signal_Count_DeInit(void);				//Signal_Count清理
+void Signal_Count_Config(void);				//Signal_Count采集配置
+void Signal_Count_DeConfig(void);			//Signal_Count清理配置
 void Signal_Count_Capture_Goal(void);	//Signal_Count获取目标
 void Signal_Count_Dir_Res(void);			//Signal_Count计数器方向变更处理,由(初始化/方向设置/外部中断)触发
 
@@ -138,18 +169,22 @@ typedef struct{
 extern Signal_PWM_Typedef sg_pwm;
 
 //参数配置
-void Signal_PWM_Set_TopWidth(uint16_t width);				//Signal_PWM设置最大脉宽
-void Signal_PWM_Set_BottomWidth(uint16_t width);		//Signal_PWM设置最小脉宽
+void Signal_PWM_Set_TopWidth(uint16_t width);					//Signal_PWM设置最大脉宽
+void Signal_PWM_Set_BottomWidth(uint16_t width);			//Signal_PWM设置最小脉宽
 void Signal_PWM_Set_TopLocation(int32_t location);		//Signal_PWM设置最大脉宽表示位置
 void Signal_PWM_Set_BottomLocation(int32_t location);	//Signal_PWM设置最小脉宽表示位置
 void Signal_PWM_Set_TopSpeed(int32_t speed);					//Signal_PWM设置最大脉宽表示速度
 void Signal_PWM_Set_BottomSpeed(int32_t speed);				//Signal_PWM设置最小脉宽表示速度
 void Signal_PWM_Set_TopCurrent(int32_t current);			//Signal_PWM设置最大脉宽表示电流
 void Signal_PWM_Set_BottomCurrent(int32_t current);		//Signal_PWM设置最小脉宽表示电流
+void Signal_PWM_Set_Default(void);										//Signal_PWM参数恢复
+
+//初始化
+void Signal_PWM_Init(void);							//Signal_PWM采集初始化
 
 //功能接口
-void Signal_PWM_Init(void);							//Signal_PWM采集初始化
-void Signal_PWM_DeInit(void);						//Signal_PWM清理
+void Signal_PWM_Config(void);						//Signal_PWM采集配置
+void Signal_PWM_DeConfig(void);					//Signal_PWM清理配置
 void Signal_PWM_Capture_Goal(void);			//Signal_PWM获取目标
 void Signal_PWM_TIM_Callback(void);			//Signal_PWM采集中断回调
 
@@ -183,9 +218,10 @@ typedef struct{
 extern Signal_MoreIO_Typedef signal_moreio;
 
 //功能接口
-void Signal_MoreIO_Init(void);								//MoreIO初始化
-void Signal_MoreIO_Config(MoreIO_Mode data);	//MoreIO配置工作模式
-void Signal_MoreIO_Capture_Goal(void);				//MoreIO获取目标
+void Signal_MoreIO_Init(void);									//MoreIO初始化
+
+void Signal_MoreIO_Config(MoreIO_Mode data);		//MoreIO配置工作模式
+void Signal_MoreIO_Capture_Goal(void);					//MoreIO获取目标
 
 
 #ifdef __cplusplus
