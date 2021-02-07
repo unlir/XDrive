@@ -109,6 +109,7 @@ typedef struct{
 //接口函数
 void XDrive_REINui_Init(void);									//XDrive_REINui初始化
 void XDrive_REINui_Callback_ms(uint32_t _time);	//XDrive_REINui任务回调
+void XDrive_REINui_ToCalibration(void);					//XDrive_REINui进入校准界面
 
 #ifdef __cplusplus
 }

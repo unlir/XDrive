@@ -1011,3 +1011,13 @@ void XDrive_REINui_Callback_ms(uint32_t _time)
 		ui_activated->drawing_function(ui_activated);
 	}
 }
+
+/**
+  * @brief  XDrive_REINui进入校准界面
+  * @param  NULL
+  * @retval NULL
+**/
+void XDrive_REINui_ToCalibration(void)
+{
+	ui_pitch = &ui_calibration;
+}

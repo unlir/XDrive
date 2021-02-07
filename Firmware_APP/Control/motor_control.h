@@ -168,7 +168,7 @@ typedef enum{
 **/
 typedef struct{
 	//配置(模式)
-	#define			De_Motor_Mode		Motor_Mode_Digital_Location	//默认配置
+	#define			De_Motor_Mode		Motor_Mode_PULSE_Location	//默认配置
 	bool				valid_mode;		//有效标志
 	Motor_Mode	mode_order;		//电机模式_新指令的
 	//配置(堵转)

@@ -172,9 +172,12 @@ void loop(void)
 	LoopIT_Priority_Overlay();	//重写-中断优先级覆盖
 	LoopIT_SysTick_20KHz();			//重写-系统计时器修改为20KHz
 	
-	//临时校准
+	//启动时使用按键触发校准
 	if(HAL_GPIO_ReadPin(BUTTON_DOWN_GPIO_Port, BUTTON_DOWN_Pin) == GPIO_PIN_RESET)
-		encode_cali.trigger = true;		//触发校准
+	{
+		encode_cali.trigger = true;			//触发校准
+		XDrive_REINui_ToCalibration();	//进入UI校准界面
+	}
 	
 	//FOR Circulation
 	for(;;)
