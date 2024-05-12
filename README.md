@@ -19,4 +19,4 @@ Machinery：外壳图纸
 Picture：XDrive照片  
 Specification：使用及入门介绍
 
-Ivan
+Ivan、20240512
